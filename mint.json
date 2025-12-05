@@ -46,7 +46,7 @@
     {
       "group": "Integration",
       "pages": [
-        "webhooks"
+        "integration/webhooks"
       ]
     },
     {
