@@ -1,6 +1,6 @@
 ---
-title: 'Quickstart'
-description: 'Start accepting or making on-chain subscriptions in under 5 minutes'
+title: "Quickstart"
+description: "Get started with on-chain subscriptions"
 ---
 
 ## Choose Your Path
@@ -21,337 +21,142 @@ Select your role to get started with on-chain subscriptions:
 
 ---
 
-## For Users: Subscribe in 3 Steps
+## Getting Started
 
-Get started with your first on-chain subscription and start earning yield on idle funds.
+We're building comprehensive guides for users, merchants, and developers. Detailed documentation and tutorials are coming soon!
 
-<Steps>
-  <Step title="Create Your Subscription Wallet">
-    ```javascript
-    import { SubscriptionProtocol } from '@subscription-protocol/sdk';
-    
-    const protocol = new SubscriptionProtocol();
-    
-    // Connect your Solana wallet
-    await protocol.connectWallet();
-    
-    // Create subscription wallet (PDA)
-    const wallet = await protocol.createSubscriptionWallet({
-      mint: 'USDC_MINT_ADDRESS'
-    });
-    
-    console.log('Wallet created:', wallet.publicKey);
-    ```
-    
-    <Note>
-      Your subscription wallet is a Program Derived Address (PDA) that you control. No one else can access your funds.
-    </Note>
-  </Step>
-  
-  <Step title="Deposit Funds & Enable Yield (Optional)">
-    ```javascript
-    // Deposit USDC to your subscription wallet
-    await protocol.deposit({
-      amount: 1000, // 1000 USDC
-      wallet: wallet.publicKey
-    });
-    
-    // Enable yield earning (optional but recommended)
-    await protocol.enableYield({
-      wallet: wallet.publicKey,
-      strategy: 'MarginfiLend' // Options: MarginfiLend, KaminoLend, SolendPool, DriftDeposit
-    });
-    
-    console.log('Funds deposited and yield enabled!');
-    ```
-    
-    <Tip>
-      With yield enabled, your idle funds earn 5-8% APY through integrated DeFi protocols while waiting to pay subscriptions.
-    </Tip>
-  </Step>
-  
-  <Step title="Subscribe to a Service">
-    ```javascript
-    // Browse available plans
-    const plans = await protocol.getMerchantPlans('MERCHANT_ADDRESS');
-    
-    // Subscribe to a plan
-    const subscription = await protocol.subscribe({
-      planId: 'premium-monthly',
-      wallet: wallet.publicKey
-    });
-    
-    console.log('Subscription active:', subscription.publicKey);
-    ```
-    
-    <Check>
-      Done! Payments will execute automatically on schedule. You can cancel anytime from your dashboard.
-    </Check>
-  </Step>
-</Steps>
+<Info>
+  **Documentation In Progress**
 
-### What Happens Next?
+  We're actively developing step-by-step guides, code examples, and integration tutorials. Check back soon or join our community for early access.
+</Info>
+
+### What We're Building
 
 <AccordionGroup>
-  <Accordion icon="calendar-check" title="Automatic Payments">
-    The smart contract automatically executes payments based on your subscription interval. The protocol reserves a 3-month buffer while the rest of your funds continue earning yield.
+  <Accordion title="For Users" icon="user" iconType="duotone">
+    - Creating your subscription wallet
+    - Depositing funds and enabling yield
+    - Subscribing to services
+    - Managing subscriptions and claiming rewards
+    - **Coming Soon**
   </Accordion>
-  
-  <Accordion icon="chart-line" title="Track Your Yield">
-    View your earnings in real-time through the dashboard. Claim yield rewards anytime without disrupting your active subscriptions.
+  <Accordion title="For Merchants" icon="store" iconType="duotone">
+    - Getting API credentials
+    - Creating subscription plans
+    - Integrating with your application
+    - Monitoring payments and webhooks
+    - **Coming Soon**
   </Accordion>
-  
-  <Accordion icon="xmark" title="Cancel Anytime">
-    Cancel subscriptions with one click. Your remaining funds stay in your wallet—no refund requests needed.
+  <Accordion title="For Developers" icon="code" iconType="duotone">
+    - Setting up development environment
+    - Understanding smart contract architecture
+    - Direct program integration
+    - Building custom solutions
+    - **Coming Soon**
   </Accordion>
 </AccordionGroup>
 
 ---
 
-## For Merchants: Accept Payments in 3 Steps
+## Core Concepts
 
-Start accepting recurring crypto payments without blockchain complexity.
+While we finalize our guides, here's what you need to know about our protocol:
 
-<Steps>
-  <Step title="Get Your API Keys">
-    ```bash
-    # Sign up and get your API credentials
-    curl -X POST https://api.subscription-protocol.com/v1/auth/register \
-      -H "Content-Type: application/json" \
-      -d '{
-        "email": "merchant@example.com",
-        "businessName": "Your Business"
-      }'
-    ```
-    
-    You'll receive:
-    - API Key
-    - Webhook Secret
-    - Merchant Wallet Address
-    
-    <Warning>
-      Keep your API key secure. Never expose it in client-side code.
-    </Warning>
-  </Step>
-  
-  <Step title="Create a Subscription Plan">
-    ```javascript
-    const axios = require('axios');
-    
-    const response = await axios.post(
-      'https://api.subscription-protocol.com/v1/plans',
-      {
-        planId: 'premium-monthly',
-        planName: 'Premium Plan',
-        feeAmount: 9.99, // in USDC
-        paymentInterval: 2592000, // 30 days in seconds
-        mint: 'USDC_MINT_ADDRESS'
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${YOUR_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-    
-    console.log('Plan created:', response.data.planAddress);
-    ```
-    
-    <Info>
-      You can create multiple plans with different pricing tiers and intervals (daily, weekly, monthly, yearly).
-    </Info>
-  </Step>
-  
-  <Step title="Integrate into Your App">
-    ```javascript
-    // Install the SDK
-    npm install @subscription-protocol/sdk
-    
-    // In your checkout page
-    import { SubscriptionProtocol } from '@subscription-protocol/sdk';
-    
-    const protocol = new SubscriptionProtocol({
-      apiKey: process.env.API_KEY,
-      environment: 'mainnet' // or 'devnet' for testing
-    });
-    
-    // When user clicks subscribe
-    async function handleSubscribe() {
-      try {
-        const subscription = await protocol.createSubscription({
-          planId: 'premium-monthly',
-          userWallet: userWalletAddress
-        });
-        
-        // Redirect to success page
-        window.location.href = `/success?subscription=${subscription.id}`;
-      } catch (error) {
-        console.error('Subscription failed:', error);
-      }
-    }
-    ```
-    
-    <Check>
-      That's it! Payments will flow directly to your merchant wallet automatically.
-    </Check>
-  </Step>
-</Steps>
+<CardGroup cols={2}>
+  <Card title="Subscription Wallets" icon="wallet" iconType="duotone">
+    Users create PDA wallets to hold funds, maintain custody, and manage subscriptions in one place
+  </Card>
+  <Card title="Yield Integration" icon="chart-line" iconType="duotone">
+    Idle funds earn returns through integrated DeFi protocols (Marginfi, Kamino, Solend, Drift)
+  </Card>
+  <Card title="Merchant Plans" icon="file-invoice" iconType="duotone">
+    Merchants create subscription plans with custom pricing and payment intervals
+  </Card>
+  <Card title="Automatic Payments" icon="calendar-check" iconType="duotone">
+    Smart contracts execute payments on schedule—no manual intervention needed
+  </Card>
+</CardGroup>
 
-### Monitor Subscriptions
+---
+
+## Smart Contract Overview
+
+Our protocol is built on Solana using Anchor framework. Here are the core instructions:
+
+### User Instructions
+
+- `create_subscription_wallet` - Create your subscription wallet (PDA)
+- `deposit_to_wallet` - Add funds to your wallet
+- `enable_yield` - Start earning yield on idle funds
+- `subscribe_with_wallet` - Subscribe to a merchant's plan
+- `withdraw_from_wallet` - Withdraw available funds
+- `cancel_subscription_wallet` - Cancel active subscriptions
+- `claim_yield_rewards` - Claim accumulated yield earnings
+
+### Merchant Instructions
+
+- `register_merchant` - Create a subscription plan
+- `execute_payment_from_wallet` - Process scheduled payments
+
+<Note>
+  Detailed smart contract documentation, account structures, and integration examples coming soon.
+</Note>
+
+---
+
+## Program Information
 
 <CodeGroup>
-```javascript Webhooks
-// Set up webhook endpoint to receive payment notifications
-app.post('/webhooks/subscription-protocol', (req, res) => {
-  const event = req.body;
-  
-  switch(event.type) {
-    case 'payment.executed':
-      console.log('Payment received:', event.data.amount);
-      // Update your database, send confirmation email, etc.
-      break;
-      
-    case 'subscription.cancelled':
-      console.log('Subscription cancelled:', event.data.subscriptionId);
-      // Revoke user access
-      break;
-  }
-  
-  res.status(200).send('OK');
-});
+
+```text Program ID
+GPVtSfXPiy8y4SkJrMC3VFyKUmGVhMrRbAp2NhiW1Ds2
 ```
 
-```javascript Query API
-// Check subscription status
-const subscription = await protocol.getSubscription('SUBSCRIPTION_ID');
 
-console.log('Status:', subscription.isActive);
-console.log('Payments made:', subscription.paymentCount);
-console.log('Total paid:', subscription.totalPaid);
-
-// List all active subscribers
-const subscribers = await protocol.listSubscribers({
-  planId: 'premium-monthly',
-  status: 'active'
-});
+```text Network
+Solana Devnet (Mainnet deployment coming soon)
 ```
+
 </CodeGroup>
 
 ---
 
-## For Developers: Build on the Protocol
+## Stay Updated
 
-Integrate directly with our Solana smart contracts for maximum flexibility.
-
-<Steps>
-  <Step title="Set Up Your Environment">
-    ```bash
-    # Install Solana CLI
-    sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
-    
-    # Install Anchor
-    cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
-    avm install latest
-    avm use latest
-    
-    # Clone our examples repo
-    git clone https://github.com/your-org/subscription-protocol-examples
-    cd subscription-protocol-examples
-    ```
-  </Step>
-  
-  <Step title="Understand the Program Structure">
-    ```rust
-    // Our main program instructions:
-    
-    // User instructions
-    create_subscription_wallet()  // Create PDA wallet
-    deposit_to_wallet()          // Add funds
-    enable_yield()               // Enable yield earning
-    subscribe_with_wallet()      // Subscribe to plan
-    withdraw_from_wallet()       // Withdraw idle funds
-    cancel_subscription_wallet() // Cancel subscription
-    claim_yield_rewards()        // Claim yield earnings
-    
-    // Merchant instructions
-    register_merchant()          // Create subscription plan
-    execute_payment_from_wallet() // Process payment (anyone can call)
-    ```
-    
-    <Note>
-      All program accounts and instructions are documented in our [Smart Contract Reference](/developers/contracts).
-    </Note>
-  </Step>
-  
-  <Step title="Make Your First Call">
-    ```typescript
-    import * as anchor from "@coral-xyz/anchor";
-    import { Program } from "@coral-xyz/anchor";
-    import { SubscriptionProtocol } from "../target/types/subscription_protocol";
-    
-    const provider = anchor.AnchorProvider.env();
-    anchor.setProvider(provider);
-    
-    const program = anchor.workspace.SubscriptionProtocol as Program<SubscriptionProtocol>;
-    
-    // Create subscription wallet
-    const [subscriptionWallet] = await anchor.web3.PublicKey.findProgramAddress(
-      [
-        Buffer.from("subscription_wallet"),
-        provider.wallet.publicKey.toBuffer(),
-        mint.toBuffer()
-      ],
-      program.programId
-    );
-    
-    await program.methods
-      .createSubscriptionWallet()
-      .accounts({
-        subscriptionWallet,
-        user: provider.wallet.publicKey,
-        mint: mint,
-        // ... other accounts
-      })
-      .rpc();
-    ```
-  </Step>
-</Steps>
+<CardGroup cols={3}>
+  <Card title="Join Discord" icon="discord" href="#">
+    Get early access to docs and connect with our community
+  </Card>
+  <Card title="GitHub" icon="github" href="#">
+    Star our repo for updates on code examples
+  </Card>
+  <Card title="Follow Updates" icon="bell" href="#">
+    Be notified when documentation goes live
+  </Card>
+</CardGroup>
 
 ---
 
-## Next Steps
+## What's Next?
 
-<CardGroup cols={2}>
-  <Card title="API Reference" icon="book" href="/api-reference">
-    Explore all available endpoints and methods
-  </Card>
-  
-  <Card title="Smart Contracts" icon="file-contract" href="/developers/contracts">
-    Deep dive into program architecture and accounts
-  </Card>
-  
-  <Card title="Yield Strategies" icon="chart-line" href="/users/yield">
-    Learn about integrated DeFi protocols and APY optimization
-  </Card>
-  
-  <Card title="Security" icon="shield-check" href="/security">
-    Review our security practices and audit reports
-  </Card>
-</CardGroup>
+We're working on:
 
-## Need Help?
+<Steps>
+  <Step title="SDK & API Documentation">
+    Complete API reference with JavaScript/TypeScript SDK
+  </Step>
+  <Step title="Integration Guides">
+    Step-by-step tutorials for users and merchants
+  </Step>
+  <Step title="Code Examples">
+    Sample applications and integration patterns
+  </Step>
+  <Step title="Video Tutorials">
+    Visual walkthroughs for common use cases
+  </Step>
+</Steps>
 
-<CardGroup cols={3}>
-  <Card title="Join Discord" icon="discord" href="https://discord.gg/your-server">
-    Get help from our community
-  </Card>
-  
-  <Card title="GitHub" icon="github" href="https://github.com/your-org">
-    View source code and examples
-  </Card>
-  
-  <Card title="Email Support" icon="envelope" href="mailto:support@your-protocol.com">
-    Contact our team directly
-  </Card>
-</CardGroup>
+<Tip>
+  Want to be among the first to access our documentation? email use [contact@eventop.xyz](mailto:contact@eventop.xyz) for early access and direct support from our team.
+</Tip>
