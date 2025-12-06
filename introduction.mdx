@@ -1,71 +1,124 @@
 ---
-title: Introduction
-description: 'Welcome to the home of your new documentation'
+title: "Introduction"
+description: "On-chain subscriptions with full custody, automatic yield, and simple integration"
 ---
 
 <img
   className="block dark:hidden"
   src="/images/hero-light.svg"
-  alt="Hero Light"
+  alt="On-Chain Subscription Protocol"
 />
 <img
   className="hidden dark:block"
-  src="/images/hero-dark.svg"
-  alt="Hero Dark"
+  src="/images/OnchainSubscription.png"
+  alt="On-Chain Subscription Protocol"
 />
 
-## Setting up
+## Welcome to the Future of Subscriptions
 
-The first step to world-class documentation is setting up your editing environments.
+Remember why you came to crypto? The freedom to transact globally without intermediaries, to control your own money, to build without permission.
+
+Yet subscriptions still force you off-chain—moving funds to centralized platforms, paying unnecessary fees, giving up custody, and missing out on yield opportunities.
+
+**We're bringing crypto's original promise back to subscriptions.**
+
+Our protocol enables true on-chain recurring payments where users maintain full custody of their funds while earning yield on idle balances, and merchants accept crypto subscriptions without blockchain complexity.
 
 <CardGroup cols={2}>
-  <Card
-    title="Edit Your Docs"
-    icon="pen-to-square"
-    href="https://mintlify.com/docs/quickstart"
-  >
-    Get your docs set up locally for easy development
+  <Card title="For Users" icon="wallet" iconType="duotone">
+    Subscribe to services while keeping custody of your funds and earning yield on idle balances
   </Card>
-  <Card
-    title="Preview Changes"
-    icon="image"
-    href="https://mintlify.com/docs/development"
-  >
-    Preview your changes before you push to make sure they're perfect
+  <Card title="For Merchants" icon="store" iconType="duotone">
+    Accept recurring crypto payments with a simple API—no blockchain knowledge required
   </Card>
 </CardGroup>
 
-## Make it yours
+## Why This Matters
 
-Update your docs to your brand and add valuable content for the best user conversion.
+<AccordionGroup>
+  <Accordion icon="shield-check" title="Full Custody" iconType="duotone">
+    Your funds never leave the blockchain. They stay in your subscription wallet (a PDA you control), not in some company's custody. Cancel anytime and your funds remain yours—no refund requests, no waiting periods.
+  </Accordion>
+  
+  <Accordion icon="chart-line-up" title="Earn While You Wait" iconType="duotone">
+    Idle subscription funds automatically generate yield through integrated DeFi protocols (Marginfi, Kamino, Solend, Drift). Your Netflix payment can earn 5-8% APY while waiting for next month's charge.
+  </Accordion>
+  
+  <Accordion icon="globe" title="Global from Day One" iconType="duotone">
+    Accept or make payments from anyone, anywhere, instantly. No payment processor fees, no chargebacks, no failed transactions due to expired cards.
+  </Accordion>
+  
+  <Accordion icon="code" title="Simple Integration" iconType="duotone">
+    Merchants integrate in minutes using our REST API and SDK—no Solana knowledge required. We abstract all blockchain complexity so you can focus on your business.
+  </Accordion>
+</AccordionGroup>
+
+## How It Works
+
+<Steps>
+  <Step title="Users Create Subscription Wallets">
+    Connect your Solana wallet and create a subscription wallet (PDA) in one click. Deposit funds and optionally enable yield earning on idle balances.
+  </Step>
+  
+  <Step title="Subscribe to Services">
+    Browse available subscription plans and subscribe with one click. The protocol automatically reserves a buffer (typically 3 months) while the rest keeps earning yield.
+  </Step>
+  
+  <Step title="Automatic Payments">
+    Smart contracts execute payments on schedule—no manual intervention needed. Users maintain full visibility and control through their dashboard.
+  </Step>
+  
+  <Step title="Merchants Receive Payments">
+    Funds flow directly to merchant wallets on-chain. No intermediaries, no custody risk, no payment processor fees.
+  </Step>
+</Steps>
+
+## Key Features
 
 <CardGroup cols={2}>
-  <Card
-    title="Customize Style"
-    icon="palette"
-    href="https://mintlify.com/docs/settings/global"
-  >
-    Customize your docs to your company's colors and brands
+  <Card title="User Dashboard" icon="chart-mixed" href="/users/dashboard">
+    Manage all your subscriptions, track yield earnings, and control your funds from one interface
   </Card>
-  <Card
-    title="Reference APIs"
-    icon="code"
-    href="https://mintlify.com/docs/api-playground/openapi"
-  >
-    Automatically generate endpoints from an OpenAPI spec
+  
+  <Card title="Merchant API" icon="code" href="/merchants/api-reference">
+    RESTful API and JavaScript SDK for seamless integration with your existing systems
   </Card>
-  <Card
-    title="Add Components"
-    icon="screwdriver-wrench"
-    href="https://mintlify.com/docs/components/accordion"
-  >
-    Build interactive features and designs to guide your users
+  
+  <Card title="Yield Strategies" icon="money-bill-trend-up" href="/users/yield">
+    Choose from multiple DeFi protocols to maximize returns on idle subscription funds
   </Card>
-  <Card
-    title="Get Inspiration"
-    icon="stars"
-    href="https://mintlify.com/showcase"
-  >
-    Check out our showcase of our favorite documentation
+  
+  <Card title="Smart Contracts" icon="file-contract" href="/developers/contracts">
+    Open-source Solana programs built with Anchor for transparency and security
   </Card>
 </CardGroup>
+
+## Ready to Get Started?
+
+<CardGroup cols={2}>
+  <Card title="I'm a User" icon="user" href="/users/quickstart">
+    Create your subscription wallet and start earning yield
+  </Card>
+  
+  <Card title="I'm a Merchant" icon="building" href="/merchants/quickstart">
+    Accept recurring crypto payments in minutes
+  </Card>
+  
+  <Card title="I'm a Developer" icon="code" href="/developers/quickstart">
+    Build on top of our protocol or integrate directly with smart contracts
+  </Card>
+  
+  <Card title="View Examples" icon="book-open" href="/examples">
+    See real-world implementations and use cases
+  </Card>
+</CardGroup>
+
+---
+
+## Built for Web3, Accessible to Web2
+
+Whether you're a crypto native or a traditional business exploring Web3, our protocol makes subscriptions work the way they should—permissionless, transparent, and user-controlled.
+
+No custody risk. No off-chain complexity. Just simple, reliable recurring payments on Solana.
+
+**Welcome to subscriptions, the way crypto intended.**

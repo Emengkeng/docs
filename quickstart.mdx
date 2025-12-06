@@ -1,86 +1,357 @@
 ---
 title: 'Quickstart'
-description: 'Start building awesome documentation in under 5 minutes'
+description: 'Start accepting or making on-chain subscriptions in under 5 minutes'
 ---
 
-## Setup your developments
+## Choose Your Path
 
-Learn how to update your docs locally and and deploy them to the public.
+Select your role to get started with on-chain subscriptions:
 
-### Edit and preview
+<CardGroup cols={3}>
+  <Card title="User" icon="user" iconType="duotone">
+    Subscribe to services and earn yield
+  </Card>
+  <Card title="Merchant" icon="store" iconType="duotone">
+    Accept recurring payments
+  </Card>
+  <Card title="Developer" icon="code" iconType="duotone">
+    Build or integrate with contracts
+  </Card>
+</CardGroup>
+
+---
+
+## For Users: Subscribe in 3 Steps
+
+Get started with your first on-chain subscription and start earning yield on idle funds.
+
+<Steps>
+  <Step title="Create Your Subscription Wallet">
+    ```javascript
+    import { SubscriptionProtocol } from '@subscription-protocol/sdk';
+    
+    const protocol = new SubscriptionProtocol();
+    
+    // Connect your Solana wallet
+    await protocol.connectWallet();
+    
+    // Create subscription wallet (PDA)
+    const wallet = await protocol.createSubscriptionWallet({
+      mint: 'USDC_MINT_ADDRESS'
+    });
+    
+    console.log('Wallet created:', wallet.publicKey);
+    ```
+    
+    <Note>
+      Your subscription wallet is a Program Derived Address (PDA) that you control. No one else can access your funds.
+    </Note>
+  </Step>
+  
+  <Step title="Deposit Funds & Enable Yield (Optional)">
+    ```javascript
+    // Deposit USDC to your subscription wallet
+    await protocol.deposit({
+      amount: 1000, // 1000 USDC
+      wallet: wallet.publicKey
+    });
+    
+    // Enable yield earning (optional but recommended)
+    await protocol.enableYield({
+      wallet: wallet.publicKey,
+      strategy: 'MarginfiLend' // Options: MarginfiLend, KaminoLend, SolendPool, DriftDeposit
+    });
+    
+    console.log('Funds deposited and yield enabled!');
+    ```
+    
+    <Tip>
+      With yield enabled, your idle funds earn 5-8% APY through integrated DeFi protocols while waiting to pay subscriptions.
+    </Tip>
+  </Step>
+  
+  <Step title="Subscribe to a Service">
+    ```javascript
+    // Browse available plans
+    const plans = await protocol.getMerchantPlans('MERCHANT_ADDRESS');
+    
+    // Subscribe to a plan
+    const subscription = await protocol.subscribe({
+      planId: 'premium-monthly',
+      wallet: wallet.publicKey
+    });
+    
+    console.log('Subscription active:', subscription.publicKey);
+    ```
+    
+    <Check>
+      Done! Payments will execute automatically on schedule. You can cancel anytime from your dashboard.
+    </Check>
+  </Step>
+</Steps>
+
+### What Happens Next?
 
 <AccordionGroup>
-  <Accordion icon="github" title="Clone your docs locally">
-    During the onboarding process, we created a repository on your Github with
-    your docs content. You can find this repository on our
-    [dashboard](https://dashboard.mintlify.com). To clone the repository
-    locally, follow these
-    [instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
-    in your terminal.
+  <Accordion icon="calendar-check" title="Automatic Payments">
+    The smart contract automatically executes payments based on your subscription interval. The protocol reserves a 3-month buffer while the rest of your funds continue earning yield.
   </Accordion>
-  <Accordion icon="rectangle-terminal" title="Preview changes">
-    Previewing helps you make sure your changes look as intended. We built a
-    command line interface to render these changes locally. 1. Install the
-    [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview the
-    documentation changes locally with this command: ``` npm i -g mintlify ```
-    2. Run the following command at the root of your documentation (where
-    `mint.json` is): ``` mintlify dev ```
+  
+  <Accordion icon="chart-line" title="Track Your Yield">
+    View your earnings in real-time through the dashboard. Claim yield rewards anytime without disrupting your active subscriptions.
+  </Accordion>
+  
+  <Accordion icon="xmark" title="Cancel Anytime">
+    Cancel subscriptions with one click. Your remaining funds stay in your wallet—no refund requests needed.
   </Accordion>
 </AccordionGroup>
 
-### Deploy your changes
+---
 
-<AccordionGroup>
+## For Merchants: Accept Payments in 3 Steps
 
-<Accordion icon="message-bot" title="Install our Github app">
-  Our Github app automatically deploys your changes to your docs site, so you
-  don't need to manage deployments yourself. You can find the link to install on
-  your [dashboard](https://dashboard.mintlify.com). Once the bot has been
-  successfully installed, there should be a check mark next to the commit hash
-  of the repo.
-</Accordion>
-<Accordion icon="rocket" title="Push your changes">
-  [Commit and push your changes to
-  Git](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository#about-git-push)
-  for your changes to update in your docs site. If you push and don't see that
-  the Github app successfully deployed your changes, you can also manually
-  update your docs through our [dashboard](https://dashboard.mintlify.com).
-</Accordion>
+Start accepting recurring crypto payments without blockchain complexity.
 
-</AccordionGroup>
+<Steps>
+  <Step title="Get Your API Keys">
+    ```bash
+    # Sign up and get your API credentials
+    curl -X POST https://api.subscription-protocol.com/v1/auth/register \
+      -H "Content-Type: application/json" \
+      -d '{
+        "email": "merchant@example.com",
+        "businessName": "Your Business"
+      }'
+    ```
+    
+    You'll receive:
+    - API Key
+    - Webhook Secret
+    - Merchant Wallet Address
+    
+    <Warning>
+      Keep your API key secure. Never expose it in client-side code.
+    </Warning>
+  </Step>
+  
+  <Step title="Create a Subscription Plan">
+    ```javascript
+    const axios = require('axios');
+    
+    const response = await axios.post(
+      'https://api.subscription-protocol.com/v1/plans',
+      {
+        planId: 'premium-monthly',
+        planName: 'Premium Plan',
+        feeAmount: 9.99, // in USDC
+        paymentInterval: 2592000, // 30 days in seconds
+        mint: 'USDC_MINT_ADDRESS'
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${YOUR_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    console.log('Plan created:', response.data.planAddress);
+    ```
+    
+    <Info>
+      You can create multiple plans with different pricing tiers and intervals (daily, weekly, monthly, yearly).
+    </Info>
+  </Step>
+  
+  <Step title="Integrate into Your App">
+    ```javascript
+    // Install the SDK
+    npm install @subscription-protocol/sdk
+    
+    // In your checkout page
+    import { SubscriptionProtocol } from '@subscription-protocol/sdk';
+    
+    const protocol = new SubscriptionProtocol({
+      apiKey: process.env.API_KEY,
+      environment: 'mainnet' // or 'devnet' for testing
+    });
+    
+    // When user clicks subscribe
+    async function handleSubscribe() {
+      try {
+        const subscription = await protocol.createSubscription({
+          planId: 'premium-monthly',
+          userWallet: userWalletAddress
+        });
+        
+        // Redirect to success page
+        window.location.href = `/success?subscription=${subscription.id}`;
+      } catch (error) {
+        console.error('Subscription failed:', error);
+      }
+    }
+    ```
+    
+    <Check>
+      That's it! Payments will flow directly to your merchant wallet automatically.
+    </Check>
+  </Step>
+</Steps>
 
-## Update your docs
+### Monitor Subscriptions
 
-Add content directly in your files with MDX syntax and React components. You can use any of our components, or even build your own.
+<CodeGroup>
+```javascript Webhooks
+// Set up webhook endpoint to receive payment notifications
+app.post('/webhooks/subscription-protocol', (req, res) => {
+  const event = req.body;
+  
+  switch(event.type) {
+    case 'payment.executed':
+      console.log('Payment received:', event.data.amount);
+      // Update your database, send confirmation email, etc.
+      break;
+      
+    case 'subscription.cancelled':
+      console.log('Subscription cancelled:', event.data.subscriptionId);
+      // Revoke user access
+      break;
+  }
+  
+  res.status(200).send('OK');
+});
+```
 
-<CardGroup>
+```javascript Query API
+// Check subscription status
+const subscription = await protocol.getSubscription('SUBSCRIPTION_ID');
 
-<Card title="Style Your Docs" icon="paintbrush" href="/settings/global">
-  Add flair to your docs with personalized branding.
-</Card>
+console.log('Status:', subscription.isActive);
+console.log('Payments made:', subscription.paymentCount);
+console.log('Total paid:', subscription.totalPaid);
 
-<Card
-  title="Add API Endpoints"
-  icon="square-code"
-  href="/api-playground/configuration"
->
-  Implement your OpenAPI spec and enable API user interaction.
-</Card>
+// List all active subscribers
+const subscribers = await protocol.listSubscribers({
+  planId: 'premium-monthly',
+  status: 'active'
+});
+```
+</CodeGroup>
 
-<Card
-  title="Integrate Analytics"
-  icon="chart-mixed"
-  href="/analytics/supported-integrations"
->
-  Draw insights from user interactions with your documentation.
-</Card>
+---
 
-<Card
-  title="Host on a Custom Domain"
-  icon="browser"
-  href="/settings/custom-domain/subdomain"
->
-  Keep your docs on your own website's subdomain.
-</Card>
+## For Developers: Build on the Protocol
 
+Integrate directly with our Solana smart contracts for maximum flexibility.
+
+<Steps>
+  <Step title="Set Up Your Environment">
+    ```bash
+    # Install Solana CLI
+    sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
+    
+    # Install Anchor
+    cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
+    avm install latest
+    avm use latest
+    
+    # Clone our examples repo
+    git clone https://github.com/your-org/subscription-protocol-examples
+    cd subscription-protocol-examples
+    ```
+  </Step>
+  
+  <Step title="Understand the Program Structure">
+    ```rust
+    // Our main program instructions:
+    
+    // User instructions
+    create_subscription_wallet()  // Create PDA wallet
+    deposit_to_wallet()          // Add funds
+    enable_yield()               // Enable yield earning
+    subscribe_with_wallet()      // Subscribe to plan
+    withdraw_from_wallet()       // Withdraw idle funds
+    cancel_subscription_wallet() // Cancel subscription
+    claim_yield_rewards()        // Claim yield earnings
+    
+    // Merchant instructions
+    register_merchant()          // Create subscription plan
+    execute_payment_from_wallet() // Process payment (anyone can call)
+    ```
+    
+    <Note>
+      All program accounts and instructions are documented in our [Smart Contract Reference](/developers/contracts).
+    </Note>
+  </Step>
+  
+  <Step title="Make Your First Call">
+    ```typescript
+    import * as anchor from "@coral-xyz/anchor";
+    import { Program } from "@coral-xyz/anchor";
+    import { SubscriptionProtocol } from "../target/types/subscription_protocol";
+    
+    const provider = anchor.AnchorProvider.env();
+    anchor.setProvider(provider);
+    
+    const program = anchor.workspace.SubscriptionProtocol as Program<SubscriptionProtocol>;
+    
+    // Create subscription wallet
+    const [subscriptionWallet] = await anchor.web3.PublicKey.findProgramAddress(
+      [
+        Buffer.from("subscription_wallet"),
+        provider.wallet.publicKey.toBuffer(),
+        mint.toBuffer()
+      ],
+      program.programId
+    );
+    
+    await program.methods
+      .createSubscriptionWallet()
+      .accounts({
+        subscriptionWallet,
+        user: provider.wallet.publicKey,
+        mint: mint,
+        // ... other accounts
+      })
+      .rpc();
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="API Reference" icon="book" href="/api-reference">
+    Explore all available endpoints and methods
+  </Card>
+  
+  <Card title="Smart Contracts" icon="file-contract" href="/developers/contracts">
+    Deep dive into program architecture and accounts
+  </Card>
+  
+  <Card title="Yield Strategies" icon="chart-line" href="/users/yield">
+    Learn about integrated DeFi protocols and APY optimization
+  </Card>
+  
+  <Card title="Security" icon="shield-check" href="/security">
+    Review our security practices and audit reports
+  </Card>
+</CardGroup>
+
+## Need Help?
+
+<CardGroup cols={3}>
+  <Card title="Join Discord" icon="discord" href="https://discord.gg/your-server">
+    Get help from our community
+  </Card>
+  
+  <Card title="GitHub" icon="github" href="https://github.com/your-org">
+    View source code and examples
+  </Card>
+  
+  <Card title="Email Support" icon="envelope" href="mailto:support@your-protocol.com">
+    Contact our team directly
+  </Card>
 </CardGroup>
