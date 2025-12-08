@@ -1,5 +1,266 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Checkout Sessions"
+description: "Create and manage checkout sessions for subscriptions"
 ---
 
+## Create Checkout Session
+
+Create a checkout session to start the subscription flow.
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.eventop.xyz/checkout/create \
+  -H "Authorization: Bearer sk_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "planId": "premium-monthly",
+    "customerEmail": "user@example.com",
+    "customerId": "user_123",
+    "successUrl": "https://yourdomain.com/success",
+    "cancelUrl": "https://yourdomain.com/pricing",
+    "metadata": {
+      "userId": "123",
+      "source": "pricing_page"
+    }
+  }'
+```
+```javascript Node.js
+const session = await eventop.checkout.create({
+  planId: 'premium-monthly',
+  customerEmail: 'user@example.com',
+  customerId: 'user_123',
+  successUrl: 'https://yourdomain.com/success',
+  cancelUrl: 'https://yourdomain.com/pricing',
+  metadata: {
+    userId: '123',
+    source: 'pricing_page'
+  }
+});
+
+// Redirect user to session.url
+res.redirect(session.url);
+```
+
+</CodeGroup>
+
+### Request Body
+
+<ParamField body="planId" type="string" required>
+  The ID of the subscription plan to subscribe to
+</ParamField>
+
+<ParamField body="customerEmail" type="string" required>
+  Customer's email address
+</ParamField>
+
+<ParamField body="customerId" type="string">
+  Your internal customer/user ID (for tracking)
+</ParamField>
+
+<ParamField body="successUrl" type="string" required>
+  URL to redirect to after successful subscription
+</ParamField>
+
+<ParamField body="cancelUrl" type="string">
+  URL to redirect to if user cancels (defaults to successUrl)
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional data to attach to the session (max 50 keys)
+</ParamField>
+
+### Response
+```json
+{
+  "sessionId": "session_abc123...",
+  "url": "https://checkout.eventop.xyz/session_abc123...",
+  "expiresAt": "2024-12-09T11:00:00Z"
+}
+```
+
+<ResponseField name="sessionId" type="string">
+  Unique identifier for the checkout session
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  Checkout page URL to redirect the user to
+</ResponseField>
+
+<ResponseField name="expiresAt" type="string">
+  ISO 8601 timestamp when the session expires (30 minutes from creation)
+</ResponseField>
+
+---
+
+## Get Checkout Session
+
+Retrieve details of a checkout session.
+
+<CodeGroup>
+```bash cURL
+curl https://api.eventop.xyz/checkout/session_abc123 \
+  -H "Authorization: Bearer sk_live_..."
+```
+```javascript Node.js
+const session = await eventop.checkout.get('session_abc123');
+```
+```python Python
+session = client.checkout.get('session_abc123')
+```
+```php PHP
+$session = $client->checkout->get('session_abc123');
+```
+
+</CodeGroup>
+
+### Response
+```json
+{
+  "sessionId": "session_abc123...",
+  "status": "completed",
+  "merchant": {
+    "walletAddress": "7xKXtg2...",
+    "companyName": "YourCompany",
+    "logoUrl": "https://..."
+  },
+  "plan": {
+    "planId": "premium-monthly",
+    "planName": "Premium Plan",
+    "feeAmount": "9990000",
+    "paymentInterval": "2592000",
+    "description": "Premium features"
+  },
+  "customerEmail": "user@example.com",
+  "customerId": "user_123",
+  "successUrl": "https://yourdomain.com/success",
+  "cancelUrl": "https://yourdomain.com/pricing",
+  "metadata": {
+    "userId": "123",
+    "source": "pricing_page"
+  },
+  "subscriptionPda": "ABC123...",
+  "expiresAt": "2024-12-09T11:00:00Z",
+  "completedAt": "2024-12-09T10:45:23Z"
+}
+```
+
+---
+
+## Complete Checkout Session
+
+Mark a checkout session as completed (called by our mobile app).
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.eventop.xyz/checkout/session_abc123/complete \
+  -H "Content-Type: application/json" \
+  -d '{
+    "subscriptionPda": "ABC123...",
+    "userWallet": "7xKXtg2...",
+    "signature": "5j7Km..."
+  }'
+```
+```javascript Node.js
+await eventop.checkout.complete('session_abc123', {
+  subscriptionPda: 'ABC123...',
+  userWallet: '7xKXtg2...',
+  signature: '5j7Km...'
+});
+```
+
+</CodeGroup>
+
+### Request Body
+
+<ParamField body="subscriptionPda" type="string" required>
+  The on-chain subscription PDA address
+</ParamField>
+
+<ParamField body="userWallet" type="string" required>
+  User's Solana wallet address
+</ParamField>
+
+<ParamField body="signature" type="string" required>
+  Transaction signature from Solana
+</ParamField>
+
+### Response
+```json
+{
+  "sessionId": "session_abc123...",
+  "status": "completed",
+  "subscriptionPda": "ABC123...",
+  "successUrl": "https://yourdomain.com/success?session_id=session_abc123"
+}
+```
+
+---
+
+## Cancel Checkout Session
+
+Cancel a pending checkout session.
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.eventop.xyz/checkout/session_abc123/cancel \
+  -H "Authorization: Bearer sk_live_..."
+```
+```javascript Node.js
+await eventop.checkout.cancel('session_abc123');
+```
+
+</CodeGroup>
+
+### Response
+```json
+{
+  "sessionId": "session_abc123...",
+  "status": "cancelled",
+  "cancelUrl": "https://yourdomain.com/pricing"
+}
+```
+
+---
+
+## Session Status
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Session created, awaiting user action |
+| `completed` | User successfully subscribed |
+| `expired` | Session expired (30 min TTL) |
+| `cancelled` | Session was cancelled |
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Always Use HTTPS URLs" icon="lock">
+    Success and cancel URLs must use HTTPS in production.
+  </Accordion>
+  
+  <Accordion title="Include Session ID in Success URL" icon="link">
+    The session ID is automatically appended as a query parameter: `?session_id=...`
+    
+    Use this to verify the subscription was completed.
+  </Accordion>
+  
+  <Accordion title="Handle Expired Sessions" icon="clock">
+    Sessions expire after 30 minutes. Show an error and let users retry.
+  </Accordion>
+  
+  <Accordion title="Use Metadata for Tracking" icon="tag">
+    Store any data you need to correlate the subscription with your system:
+```json
+    {
+      "metadata": {
+        "userId": "123",
+        "accountId": "acc_456",
+        "campaign": "summer-2024",
+        "referrer": "twitter"
+      }
+    }
+```
+  </Accordion>
+</AccordionGroup>
