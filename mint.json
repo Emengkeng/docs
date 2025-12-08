@@ -33,6 +33,14 @@
     {
       "name": "API Reference",
       "url": "api-reference"
+    },
+    {
+      "name": "Merchants",
+      "url": "merchants"
+    },
+    {
+      "name": "Users",
+      "url": "users"
     }
   ],
   "navigation": [
@@ -44,15 +52,38 @@
       ]
     },
     {
+      "group": "Merchants",
+      "pages": [
+        "merchants/overview",
+        "merchants/quickstart",
+        "merchants/how-it-works",
+        "merchants/integration-guide",
+        "merchants/testing",
+        "merchants/go-live"
+      ]
+    },
+    {
       "group": "Integration",
       "pages": [
-        "integration/webhooks"
+        "integration/webhooks",
+        "integration/sdks"
       ]
     },
     {
       "group": "API Reference",
       "pages": [
-        "api-reference/introduction"
+        "api-reference/introduction",
+        "api-reference/authentication",
+        "api-reference/checkout",
+        "api-reference/subscriptions",
+        "api-reference/customers"
+      ]
+    },
+    {
+      "group": "Users",
+      "pages": [
+        "users/getting-started",
+        "users/mobile-app"
       ]
     }
   ],
