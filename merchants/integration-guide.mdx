@@ -1,5 +1,555 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Integration Guide"
+description: "Step-by-step guide to integrating Eventop subscriptions"
 ---
 
+## Prerequisites
+
+Before you start, make sure you have:
+
+<Check>Merchant account at [dashboard.eventop.xyz](https://dashboard.eventop.xyz)</Check>
+<Check>At least one subscription plan created</Check>
+<Check>API key from the dashboard</Check>
+<Check>Solana wallet address (we can help you create one)</Check>
+
+---
+
+## Step 1: Install SDK (Optional)
+
+If you're using Node.js, install our SDK for easier integration:
+```bash
+npm install @eventop/sdk
+```
+
+<Accordion title="Other languages (Python, PHP, Ruby)">
+  SDKs for other languages are coming soon. For now, use direct HTTP requests to our API (see [API Reference](/api-reference)).
+</Accordion>
+
+---
+
+## Step 2: Configure API Client
+
+### Node.js/TypeScript
+```typescript
+import { Eventop } from '@eventop/sdk';
+
+const eventop = new Eventop({
+  apiKey: process.env.EVENTOP_API_KEY,
+  environment: 'devnet' // or 'mainnet' for production
+});
+```
+
+### Direct HTTP (Any Language)
+```javascript
+const EVENTOP_API_URL = 'https://api.eventop.xyz';
+const API_KEY = process.env.EVENTOP_API_KEY;
+
+async function createCheckout(data) {
+  const response = await fetch(`${EVENTOP_API_URL}/checkout/create`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${API_KEY}`
+    },
+    body: JSON.stringify(data)
+  });
+  
+  return response.json();
+}
+```
+
+<Warning>
+  Never expose your API key in frontend code! Always call our API from your backend.
+</Warning>
+
+---
+
+## Step 3: Create Subscription Endpoint
+
+Create an endpoint on your server that generates checkout sessions.
+
+<CodeGroup>
+```javascript Express.js
+app.post('/api/create-subscription', async (req, res) => {
+  try {
+    // Get user from session/auth
+    const user = req.user;
+    const { planId } = req.body;
+    
+    // Create checkout session
+    const session = await eventop.checkout.create({
+      merchantWallet: process.env.MERCHANT_WALLET,
+      planId: planId,
+      customerEmail: user.email,
+      customerId: user.id.toString(),
+      successUrl: `${process.env.BASE_URL}/subscription/success`,
+      cancelUrl: `${process.env.BASE_URL}/pricing`,
+      metadata: {
+        userId: user.id,
+        userName: user.name,
+        source: 'web_pricing_page'
+      }
+    });
+    
+    // Redirect to checkout
+    res.json({ checkoutUrl: session.url });
+    
+  } catch (error) {
+    console.error('Checkout creation failed:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
+```
+```python Flask
+from flask import Flask, request, jsonify
+from eventop import Client
+import os
+
+app = Flask(__name__)
+eventop_client = Client(api_key=os.environ['EVENTOP_API_KEY'])
+
+@app.route('/api/create-subscription', methods=['POST'])
+def create_subscription():
+    try:
+        user = get_current_user()  # Your auth logic
+        plan_id = request.json.get('planId')
+        
+        session = eventop_client.checkout.create(
+            merchant_wallet=os.environ['MERCHANT_WALLET'],
+            plan_id=plan_id,
+            customer_email=user.email,
+            customer_id=str(user.id),
+            success_url=f"{os.environ['BASE_URL']}/subscription/success",
+            cancel_url=f"{os.environ['BASE_URL']}/pricing",
+            metadata={
+                'user_id': user.id,
+                'user_name': user.name,
+                'source': 'web_pricing_page'
+            }
+        )
+        
+        return jsonify({'checkoutUrl': session.url})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+```
+```php Laravel
+<?php
+
+use Illuminate\Http\Request;
+use Eventop\Client;
+
+Route::post('/api/create-subscription', function (Request $request) {
+    $user = Auth::user();
+    $planId = $request->input('planId');
+    
+    $client = new Client([
+        'api_key' => env('EVENTOP_API_KEY')
+    ]);
+    
+    try {
+        $session = $client->checkout->create([
+            'merchantWallet' => env('MERCHANT_WALLET'),
+            'planId' => $planId,
+            'customerEmail' => $user->email,
+            'customerId' => (string) $user->id,
+            'successUrl' => url('/subscription/success'),
+            'cancelUrl' => url('/pricing'),
+            'metadata' => [
+                'userId' => $user->id,
+                'userName' => $user->name,
+                'source' => 'web_pricing_page'
+            ]
+        ]);
+        
+        return response()->json(['checkoutUrl' => $session->url]);
+        
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+```
+
+</CodeGroup>
+
+---
+
+## Step 4: Add Subscribe Button to Frontend
+
+Update your pricing page or subscription form to call your backend endpoint.
+
+<CodeGroup>
+```javascript React
+import { useState } from 'react';
+
+export function SubscribeButton({ planId, planName }) {
+  const [loading, setLoading] = useState(false);
+  
+  const handleSubscribe = async () => {
+    setLoading(true);
+    
+    try {
+      const response = await fetch('/api/create-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId })
+      });
+      
+      const { checkoutUrl } = await response.json();
+      
+      // Redirect to checkout
+      window.location.href = checkoutUrl;
+      
+    } catch (error) {
+      console.error('Subscription failed:', error);
+      alert('Failed to start checkout. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  return (
+    <button 
+      onClick={handleSubscribe}
+      disabled={loading}
+      className="subscribe-button"
+    >
+      {loading ? 'Loading...' : `Subscribe to ${planName}`}
+    </button>
+  );
+}
+```
+```html Plain HTML/JavaScript
+<button id="subscribe-btn" data-plan-id="premium-monthly">
+  Subscribe Now
+</button>
+
+<script>
+document.getElementById('subscribe-btn').addEventListener('click', async function() {
+  const planId = this.dataset.planId;
+  this.disabled = true;
+  this.textContent = 'Loading...';
+  
+  try {
+    const response = await fetch('/api/create-subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ planId })
+    });
+    
+    const { checkoutUrl } = await response.json();
+    window.location.href = checkoutUrl;
+    
+  } catch (error) {
+    alert('Failed to start checkout. Please try again.');
+    this.disabled = false;
+    this.textContent = 'Subscribe Now';
+  }
+});
+</script>
+```
+
+</CodeGroup>
+
+---
+
+## Step 5: Setup Webhook Endpoint
+
+Create an endpoint to receive subscription events.
+
+<CodeGroup>
+```javascript Express.js
+const crypto = require('crypto');
+
+app.post('/webhooks/eventop', express.raw({ type: 'application/json' }), async (req, res) => {
+  const signature = req.headers['x-webhook-signature'];
+  const timestamp = req.headers['x-webhook-timestamp'];
+  const webhookId = req.headers['x-webhook-id'];
+  
+  // Verify signature
+  const payload = req.body.toString();
+  const expectedSignature = crypto
+    .createHmac('sha256', process.env.EVENTOP_WEBHOOK_SECRET)
+    .update(payload)
+    .digest('hex');
+  
+  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+  
+  // Prevent replay attacks
+  const age = Date.now() - parseInt(timestamp);
+  if (age > 300000) { // 5 minutes
+    return res.status(401).json({ error: 'Webhook too old' });
+  }
+  
+  // Parse event
+  const event = JSON.parse(payload);
+  
+  // Process event
+  try {
+    await processWebhookEvent(event);
+    res.json({ received: true });
+  } catch (error) {
+    console.error('Webhook processing failed:', error);
+    res.status(500).json({ error: 'Processing failed' });
+  }
+});
+```
+```python Flask
+from flask import Flask, request
+import hmac
+import hashlib
+import json
+
+WEBHOOK_SECRET = os.environ['EVENTOP_WEBHOOK_SECRET']
+
+@app.route('/webhooks/eventop', methods=['POST'])
+def handle_webhook():
+    signature = request.headers.get('X-Webhook-Signature')
+    timestamp = request.headers.get('X-Webhook-Timestamp')
+    payload = request.get_data()
+    
+    # Verify signature
+    expected = hmac.new(
+        WEBHOOK_SECRET.encode(),
+        payload,
+        hashlib.sha256
+    ).hexdigest()
+    
+    if not hmac.compare_digest(signature, expected):
+        return {'error': 'Invalid signature'}, 401
+    
+    # Prevent replay attacks
+    age = time.time() * 1000 - int(timestamp)
+    if age > 300000:  # 5 minutes
+        return {'error': 'Webhook too old'}, 401
+    
+    # Process event
+    event = json.loads(payload)
+    
+    try:
+        process_webhook_event(event)
+        return {'received': True}
+    except Exception as e:
+        print(f'Webhook processing failed: {e}')
+        return {'error': 'Processing failed'}, 500
+
+def process_webhook_event(event):
+    event_type = event['event']
+    data = event['data']
+    
+    if event_type == 'subscription.created':
+        handle_subscription_created(data)
+    elif event_type == 'subscription.payment_succeeded':
+        handle_payment_succeeded(data)
+    elif event_type == 'subscription.payment_failed':
+        handle_payment_failed(data)
+    elif event_type == 'subscription.cancelled':
+        handle_subscription_cancelled(data)
+```
+
+</CodeGroup>
+
+<Warning>
+  **Security Checklist**:
+  - ✅ Always verify webhook signatures
+  - ✅ Check timestamp to prevent replay attacks
+  - ✅ Use HTTPS for your webhook endpoint
+  - ✅ Return 200 status quickly (\< 10 seconds)
+  - ✅ Process heavy work asynchronously
+</Warning>
+
+---
+
+## Step 6: Add Webhook URL to Dashboard
+
+1. Go to [dashboard.eventop.xyz](https://dashboard.eventop.xyz)
+2. Navigate to **Settings → Webhooks**
+3. Click **Add Endpoint**
+4. Enter your webhook URL: `https://yourdomain.com/webhooks/eventop`
+5. Select events to receive (or select "All events")
+6. Copy the **webhook secret** (you'll need this for signature verification)
+7. Save
+
+---
+
+## Step 7: Create Success/Cancel Pages
+
+Create pages where users land after checkout.
+
+### Success Page
+```javascript
+// /subscription/success
+app.get('/subscription/success', async (req, res) => {
+  const { session_id } = req.query;
+  
+  // Optional: Fetch session details
+  if (session_id) {
+    const session = await eventop.checkout.getSession(session_id);
+    
+    if (session.status === 'completed') {
+      res.render('success', {
+        customerEmail: session.customer.email,
+        planName: session.plan.planName,
+        subscriptionId: session.subscriptionId
+      });
+      return;
+    }
+  }
+  
+  // Fallback if no session_id
+  res.render('success-generic');
+});
+```
+
+**success.html**:
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Subscription Successful!</title>
+</head>
+<body>
+  <div class="success-container">
+    <h1>🎉 Welcome to Premium!</h1>
+    <p>Your subscription to {{planName}} is now active.</p>
+    <p>We've sent a confirmation email to {{customerEmail}}.</p>
+    
+    <a href="/dashboard" class="button">Go to Dashboard</a>
+  </div>
+</body>
+</html>
+```
+
+### Cancel Page
+```javascript
+// /subscription/cancel or back to /pricing
+app.get('/subscription/cancel', (req, res) => {
+  res.render('pricing', {
+    message: 'Subscription was cancelled. Subscribe anytime!'
+  });
+});
+```
+
+---
+
+## Step 8: Test End-to-End
+
+<Steps>
+  <Step title="Switch to Devnet Mode">
+    In your code, set `environment: 'devnet'` and use devnet API keys.
+  </Step>
+  
+  <Step title="Create Test Plan">
+    In the dashboard, create a test subscription plan (e.g., $0.01/month).
+  </Step>
+  
+  <Step title="Test Checkout Flow">
+    - Click subscribe button on your site
+    - Complete checkout in the Eventop app (devnet mode)
+    - Verify you're redirected back to success page
+  </Step>
+  
+  <Step title="Verify Webhook">
+    Check your server logs to confirm webhook was received and processed correctly.
+  </Step>
+  
+  <Step title="Check Dashboard">
+    View the subscription in your merchant dashboard to verify it was created.
+  </Step>
+</Steps>
+
+---
+
+## Step 9: Go Live
+
+Once testing is complete:
+
+<Steps>
+  <Step title="Switch to Mainnet">
+    Update `environment: 'mainnet'` and use mainnet API keys.
+  </Step>
+  
+  <Step title="Update Merchant Wallet">
+    Use your production Solana wallet address (mainnet).
+  </Step>
+  
+  <Step title="Create Production Plans">
+    Set up your real subscription plans with actual pricing.
+  </Step>
+  
+  <Step title="Update Webhook URL">
+    Ensure your production webhook endpoint is configured.
+  </Step>
+  
+  <Step title="Test with Small Amount">
+    Do a final test with a small real payment to verify everything works.
+  </Step>
+  
+  <Step title="Monitor">
+    Watch your dashboard and logs for the first few subscriptions.
+  </Step>
+</Steps>
+
+---
+
+## Common Issues
+
+<AccordionGroup>
+  <Accordion title="Webhook not received" icon="webhook">
+    **Troubleshooting**:
+    - Verify your webhook URL is publicly accessible
+    - Check that you're returning 200 status code
+    - Look for errors in Dashboard → Webhooks → Logs
+    - Test with [webhook.site](https://webhook.site) first
+    - Ensure no firewall is blocking requests from our IPs
+  </Accordion>
+  
+  <Accordion title="Signature verification fails" icon="shield-xmark">
+    **Troubleshooting**:
+    - Double-check you're using the correct webhook secret
+    - Ensure you're hashing the raw request body (not parsed JSON)
+    - Verify you're using SHA256 HMAC
+    - Check for trailing newlines in the secret
+  </Accordion>
+  
+  <Accordion title="User stuck on checkout page" icon="hourglass">
+    **Possible causes**:
+    - User doesn't have the Eventop app installed
+    - User's subscription wallet has insufficient balance
+    - Session expired (30 min TTL)
+    - Network issues
+    
+    **Solution**: Guide users to download the app and ensure they have sufficient balance.
+  </Accordion>
+  
+  <Accordion title="Subscription not showing in dashboard" icon="chart-line">
+    **Troubleshooting**:
+    - Check if using correct API key for the environment
+    - Verify merchant wallet address matches
+    - Look for errors in webhook logs
+    - Confirm transaction succeeded on Solana explorer
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="API Reference" icon="book" href="/api-reference">
+    Explore all available endpoints
+  </Card>
+  <Card title="Webhook Events" icon="webhook" href="/integration/webhooks">
+    See all webhook event types
+  </Card>
+  <Card title="Dashboard Guide" icon="chart-line" href="/merchants/dashboard">
+    Learn to use the merchant dashboard
+  </Card>
+  <Card title="Get Support" icon="life-ring" href="mailto:merchants@eventop.xyz">
+    Email us for integration help
+  </Card>
+</CardGroup>
+
+  

@@ -1,5 +1,197 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: "Merchant Overview"
+description: "Accept recurring crypto payments with full custody and automatic yield"
 ---
 
+## Why Accept Crypto Subscriptions?
+
+Traditional payment processors charge 2-3% fees, hold your funds, and can freeze your account without notice. With on-chain subscriptions, you get:
+
+<CardGroup cols={2}>
+  <Card title="Instant Settlement" icon="bolt" iconType="duotone">
+    Payments flow directly to your wallet—no waiting 7 days for transfers
+  </Card>
+  <Card title="Global by Default" icon="globe" iconType="duotone">
+    Accept payments from anywhere without payment processor restrictions
+  </Card>
+  <Card title="No Chargebacks" icon="shield-check" iconType="duotone">
+    Blockchain transactions are final—no fraudulent chargeback losses
+  </Card>
+  <Card title="Lower Fees" icon="coins" iconType="duotone">
+    Just blockchain transaction costs (typically \<$0.01 on Solana)
+  </Card>
+</CardGroup>
+
+## How It Works for Merchants
+
+<Steps>
+  <Step title="Create Your Account">
+    Sign up at [dashboard.eventop.xyz](https://dashboard.eventop.xyz) and create your merchant profile
+  </Step>
+  
+  <Step title="Create Subscription Plans">
+    Define your pricing, billing interval, and plan details through the dashboard
+  </Step>
+  
+  <Step title="Integrate Checkout">
+    Add our checkout flow to your website with just a few lines of code
+  </Step>
+  
+  <Step title="Receive Webhooks">
+    Get notified when subscriptions are created, paid, or cancelled
+  </Step>
+</Steps>
+
+<Note>
+  **No Blockchain Knowledge Required**
+  
+  Our API abstracts all blockchain complexity. You don't need to understand PDAs, Solana programs, or wallet connections.
+</Note>
+
+## Integration Pattern
+
+Here's how your users will subscribe:
+```
+Your Website → Our Checkout Page → User's Mobile App → Back to Your Website
+```
+
+<Frame>
+  <img src="/images/merchant-flow.png" alt="Merchant Integration Flow" />
+</Frame>
+
+### Why This Flow?
+
+Users need a **Solana wallet** and a **subscription wallet PDA** to use our protocol. Rather than forcing you to integrate complex wallet logic, we:
+
+1. Host the checkout page (so users can download our app if needed)
+2. Handle wallet creation automatically in our mobile app
+3. Process the on-chain subscription transaction
+4. Redirect back to your site with success/failure status
+
+**You just redirect to our checkout URL—we handle everything else.**
+
+## What You Need
+
+<CardGroup cols={2}>
+  <Card title="Merchant Wallet" icon="wallet">
+    A Solana wallet address where you'll receive payments (we can help you create one)
+  </Card>
+  <Card title="API Key" icon="key">
+    Generated in the merchant dashboard for authenticating API requests
+  </Card>
+  <Card title="Webhook Endpoint" icon="webhook">
+    A URL on your server to receive event notifications (optional but recommended)
+  </Card>
+  <Card title="Success/Cancel URLs" icon="link">
+    Where users return after completing or cancelling checkout
+  </Card>
+</CardGroup>
+
+## Integration Options
+
+### Option 1: Server-Side Redirect (Recommended)
+
+Create checkout sessions on your backend and redirect users:
+```javascript
+// Your backend
+const session = await eventop.checkout.create({
+  planId: 'premium-monthly',
+  customerEmail: user.email,
+  successUrl: 'https://yourdomain.com/success',
+  cancelUrl: 'https://yourdomain.com/pricing'
+});
+
+// Redirect to our checkout page
+res.redirect(session.url);
+```
+
+**Best for**: Most use cases. Works with any programming language.
+
+### Option 2: Client-Side URL Generation
+
+Build checkout URLs directly in your frontend:
+```html
+<a href="https://checkout.eventop.xyz/create?
+  merchant=YOUR_WALLET&
+  plan=premium-monthly&
+  email=user@example.com&
+  success_url=https://yourdomain.com/success&
+  cancel_url=https://yourdomain.com/pricing">
+  Subscribe Now
+</a>
+```
+
+**Best for**: Simple integrations, WordPress sites, no-code tools.
+
+### Option 3: Platform-Specific Plugins
+
+We provide ready-made plugins for popular platforms:
+
+- **WordPress/WooCommerce** - Install our plugin and configure
+- **Shopify** - Add our app from the Shopify App Store
+- **Webflow** - Embed our widget with custom code
+
+<Info>
+  Platform plugins are coming soon. For now, use Options 1 or 2.
+</Info>
+
+## Customer Identity
+
+When a user subscribes through our checkout, you receive their:
+
+- **Email address** (that you passed to us)
+- **Wallet address** (their Solana wallet)
+- **Subscription ID** (on-chain identifier)
+
+This allows you to:
+- Send receipts and notifications
+- Match subscriptions to your internal user accounts
+- Track customer lifetime value
+
+## Payment Flow
+
+<Steps>
+  <Step title="User Subscribes">
+    User completes checkout in our mobile app (on-chain transaction)
+  </Step>
+  
+  <Step title="You Receive Webhook">
+    We send `subscription.created` webhook with customer details
+  </Step>
+  
+  <Step title="Grant Access">
+    You enable the user's account/features based on their subscription
+  </Step>
+  
+  <Step title="Automatic Renewals">
+    We execute recurring payments automatically each billing cycle
+  </Step>
+  
+  <Step title="Renewal Webhooks">
+    You receive `subscription.payment_succeeded` for each successful payment
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quick Start Guide" icon="rocket" href="/merchants/quickstart">
+    Get your first subscription in 10 minutes
+  </Card>
+  <Card title="Integration Guide" icon="code" href="/merchants/integration-guide">
+    Detailed implementation walkthrough
+  </Card>
+  <Card title="API Reference" icon="book" href="/api-reference/introduction">
+    Complete API documentation
+  </Card>
+  <Card title="Webhook Setup" icon="webhook" href="/integration/webhooks">
+    Configure real-time notifications
+  </Card>
+</CardGroup>
+
+## Support
+
+Need help? We're here for you:
+
+- **Email**: [merchants@eventop.xyz](mailto:merchants@eventop.xyz)
+- **Discord**: [Join our community](#)
