@@ -339,6 +339,10 @@ If a user's subscription wallet has insufficient balance:
      "event": "subscription.payment_failed",
      "data": {
        "subscriptionId": "ABC123...",
+       "customer": {
+          "email": "abc@kd....",
+          "walletAddress": "9kdOdu...",
+        },
        "amountRequired": "9990000",
        "balanceAvailable": "2000000",
        "failureCount": 1
