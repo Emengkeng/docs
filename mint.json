@@ -2,8 +2,8 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "Even Top",
   "logo": {
-    "dark": "/logo/eventop-logo-black.png",
-    "light": "/logo/eventop-logo-white.png"
+    "dark": "/logo/eventop-logo-white.png",
+    "light": "/logo/eventop-logo-black.png"
   },
   "favicon": "/favicon.ico",
   "colors": {
