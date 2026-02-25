@@ -66,6 +66,12 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/introduction"
+    }
+  ],
   "footerSocials": {
     "twitter": "https://x.com/tryEventop",
     "github": "https://github.com/eventop-s"
