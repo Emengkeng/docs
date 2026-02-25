@@ -1,0 +1,41 @@
+---
+title: "Theming"
+description: "Customize the chat bubble and tour tooltips with theme tokens."
+---
+
+Pass a `theme` object to `<EventopAIProvider>` to customize colors, radius, and fonts. Supports `light`, `dark`, and `auto` modes.
+
+---
+
+## Basic usage
+
+```jsx
+<EventopAIProvider
+  theme={{
+    mode: 'auto', // 'light' | 'dark' | 'auto'
+    tokens: {
+      accent: '#6366f1',
+      radius: '12px',
+      fontFamily: "'Inter', sans-serif",
+    },
+  }}
+  position={{ corner: 'bottom-right' }} // 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
+  ...
+>
+```
+
+---
+
+## Token reference
+
+| Token             | Default (dark) | Default (light) | Description              |
+|-------------------|----------------|-----------------|--------------------------|
+| `accent`          | `#e94560`      | `#e94560`       | Primary action color     |
+| `accentSecondary` | `#a855f7`      | `#7c3aed`       | Secondary accent         |
+| `bg`              | `#0f0f1a`      | `#ffffff`       | Panel background         |
+| `surface`         | `#1a1a2e`      | `#f8f8fc`       | Input / card background  |
+| `border`          | `#2a2a4a`      | `#e4e4f0`       | Border color             |
+| `text`            | `#e0e0f0`      | `#1a1a2e`       | Primary text color       |
+| `radius`          | `16px`         | `16px`          | Border radius            |
+
+Any unset tokens fall back to the defaults for the selected mode.

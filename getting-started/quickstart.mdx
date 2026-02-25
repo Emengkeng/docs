@@ -1,0 +1,197 @@
+---
+title: "Quickstart"
+description: "Add AI-guided tours to your app in 3 steps."
+---
+
+## Install
+
+```bash
+npm install @eventop/sdk
+# or
+yarn add @eventop/sdk
+# or
+pnpm add @eventop/sdk
+```
+
+---
+
+## 3-step setup
+
+### 1. Create a server endpoint
+
+Never put your API key in the browser. Create a route on your server that proxies the AI call.
+
+<CodeGroup>
+
+```js Express
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+app.post('/api/guide', async (req, res) => {
+  const { systemPrompt, messages } = req.body;
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    system: systemPrompt,
+    messages,
+  });
+  res.json(JSON.parse(response.content[0].text));
+});
+```
+
+```js Next.js App Router
+// app/api/guide/route.js
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+export async function POST(request) {
+  const { systemPrompt, messages } = await request.json();
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    system: systemPrompt,
+    messages,
+  });
+  return Response.json(JSON.parse(response.content[0].text));
+}
+```
+
+```js Next.js Pages Router
+// pages/api/guide.js
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+export default async function handler(req, res) {
+  const { systemPrompt, messages } = req.body;
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    system: systemPrompt,
+    messages,
+  });
+  res.json(JSON.parse(response.content[0].text));
+}
+```
+
+</CodeGroup>
+
+---
+
+### 2. Add the provider
+
+Wrap your app with `<EventopAIProvider>`. Pass a `provider` function that calls your server route, and your framework's `router` function for cross-page navigation.
+
+<CodeGroup>
+
+```jsx React Router
+import { useNavigate } from 'react-router-dom';
+import { EventopAIProvider } from '@eventop/sdk/react';
+
+const provider = async ({ systemPrompt, messages }) => {
+  const res = await fetch('/api/guide', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ systemPrompt, messages }),
+  });
+  return res.json();
+};
+
+export default function App() {
+  const navigate = useNavigate();
+
+  return (
+    <EventopAIProvider
+      provider={provider}
+      router={navigate}
+      appName="My App"
+      suggestions={['How do I export?', 'Invite a teammate']}
+    >
+      <YourApp />
+    </EventopAIProvider>
+  );
+}
+```
+
+```jsx Next.js
+// components/EventopProvider.jsx
+'use client';
+import { useRouter } from 'next/navigation';
+import { EventopAIProvider } from '@eventop/sdk/react';
+
+const provider = async ({ systemPrompt, messages }) => {
+  const res = await fetch('/api/guide', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ systemPrompt, messages }),
+  });
+  return res.json();
+};
+
+export function EventopProvider({ children }) {
+  const router = useRouter();
+
+  return (
+    <EventopAIProvider
+      provider={provider}
+      router={(path) => router.push(path)}
+      appName="My App"
+      suggestions={['How do I export?', 'Invite a teammate']}
+    >
+      {children}
+    </EventopAIProvider>
+  );
+}
+```
+
+</CodeGroup>
+
+<Note>
+  **Next.js:** The provider must be a client component (`'use client'`) since the SDK touches the DOM. See the [full Next.js setup guide](/getting-started/nextjs) for how to add it to your layout.
+</Note>
+
+---
+
+### 3. Wrap your features
+
+Add `<EventopTarget>` around any element you want the AI to guide users to. Add `route` if the feature lives on a different page than where tours typically start.
+
+```jsx
+import { EventopTarget } from '@eventop/sdk/react';
+
+export function ExportPanel() {
+  return (
+    <EventopTarget
+      id="export"
+      name="Export Design"
+      description="Download the design as PNG, SVG or PDF"
+      route="/canvas"
+    >
+      <button>Export</button>
+    </EventopTarget>
+  );
+}
+```
+
+That's it. The chat bubble appears automatically. Users type what they need, and the tour runs.
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Cross-page navigation" icon="map" href="/features/smart-navigation">
+    How tours navigate between pages automatically
+  </Card>
+  <Card title="Multi-step flows" icon="list-ol" href="/features/multi-step-flows">
+    Guide users through complex multi-action sequences
+  </Card>
+  <Card title="Async validation" icon="circle-check" href="/features/async-validation">
+    Block tour advancement until a form action is completed
+  </Card>
+  <Card title="Theming" icon="palette" href="/features/theming">
+    Customize colors, fonts, and layout
+  </Card>
+</CardGroup>

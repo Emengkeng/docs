@@ -1,0 +1,46 @@
+---
+title: "EventopStep"
+description: "Props reference for multi-step flow components."
+---
+
+```jsx
+import { EventopStep } from '@eventop/sdk/react';
+```
+
+Use `<EventopStep>` to break a complex interaction into sequential steps. Steps self-assemble by `index` — they can live in completely separate components and don't need to be co-located.
+
+The parent feature requires a top-level `<EventopTarget>` somewhere in the tree.
+
+---
+
+## Props
+
+<ParamField path="index" type="number" required>
+  The position of this step in the flow, 0-based. Steps are shown in ascending index order.
+</ParamField>
+
+<ParamField path="feature" type="string">
+  The `id` of the parent `<EventopTarget>`. Not required if this step is rendered inside an `<EventopTarget>`.
+</ParamField>
+
+<ParamField path="waitFor" type="string">
+  A CSS selector the SDK waits to appear in the DOM before showing this step. Useful for steps that are conditionally rendered — for example, a panel that only opens after the previous step completes.
+</ParamField>
+
+<ParamField path="advanceOn" type="object">
+  Auto-advance to the next step when an event fires.
+
+  ```jsx
+  advanceOn={{ event: 'click', delay: 300 }}
+  ```
+
+  | Field      | Type   | Description |
+  |------------|--------|-------------|
+  | `event`    | string | DOM event name |
+  | `delay`    | number | Milliseconds to wait after the event |
+  | `selector` | string | CSS selector to listen on. Defaults to the wrapped element. |
+</ParamField>
+
+<ParamField path="parentStep" type="number">
+  Makes this a sub-step of another step. Use when a step logically belongs nested inside a parent step.
+</ParamField>

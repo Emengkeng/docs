@@ -1,122 +1,82 @@
 ---
 title: "Introduction"
-description: "On-chain subscriptions with full custody, automatic yield, and simple integration"
+description: "AI-powered guided tours for any React or Next.js app."
 ---
 
 <img
   className="block dark:hidden"
-  src="/images/OnchainSubscription.png"
-  alt="On-Chain Subscription Protocol"
+  src="/images/AiGuidedTour.png"
+  alt="AI guided tours"
 />
 <img
   className="hidden dark:block"
-  src="/images/OnchainSubscription.png"
-  alt="On-Chain Subscription Protocol"
+  src="/images/AiGuidedTour.png"
+  alt="AI guided tours"
 />
 
-## Welcome to the Future of Subscriptions
+## What is Eventop?
 
-Remember why you came to crypto? The freedom to transact globally without intermediaries, to control your own money, to build without permission.
+Eventop is a drop-in SDK that adds AI-guided tours to your React or Next.js app. Wrap any element with `<EventopTarget>` — the AI handles the rest. When a user types what they need in the chat bubble, the SDK figures out which features are relevant, navigates to the right pages, and walks them through step by step.
 
-Yet subscriptions still force you off-chain moving funds to centralized platforms, paying unnecessary fees, giving up custody, and missing out on yield opportunities.
+No changes to your existing components. Works with any component library.
 
-**We're bringing crypto's original promise back to subscriptions.**
-
-Our protocol enables true on-chain recurring payments where users maintain full custody of their funds while earning yield on idle balances, and merchants accept crypto subscriptions without blockchain complexity.
-
-<CardGroup cols={2}>
-  <Card title="For Users" icon="wallet" iconType="duotone">
-    Subscribe to services while keeping custody of your funds and earning yield on idle balances
-  </Card>
-  <Card title="For Merchants" icon="store" iconType="duotone">
-    Accept recurring crypto payments with a simple API—no blockchain knowledge required
-  </Card>
-</CardGroup>
-
-## Why This Matters
-
-<AccordionGroup>
-  <Accordion icon="shield-check" title="Full Custody" iconType="duotone">
-    Your funds never leave the blockchain. They stay in your subscription wallet (a PDA you control), not in some company's custody. Cancel anytime and your funds remain yours no refund requests, no waiting periods.
-  </Accordion>
-  
-  <Accordion icon="chart-line-up" title="Earn While You Wait" iconType="duotone">
-    Idle subscription funds automatically generate yield through integrated DeFi protocols (Marginfi, Kamino, Solend, Drift). Your Netflix payment can earn 5-8% APY while waiting for next month's charge.
-  </Accordion>
-  
-  <Accordion icon="globe" title="Global from Day One" iconType="duotone">
-    Accept or make payments from anyone, anywhere, instantly. No payment processor fees, no chargebacks, no failed transactions due to expired cards.
-  </Accordion>
-  
-  <Accordion icon="code" title="Simple Integration" iconType="duotone">
-    Merchants integrate in minutes using our REST API and SDK no Solana knowledge required. We abstract all blockchain complexity so you can focus on your business.
-  </Accordion>
-</AccordionGroup>
-
-## How It Works
-
-<Steps>
-  <Step title="Users Create Subscription Wallets">
-    Connect your Solana wallet and create a subscription wallet (PDA) in one click. Deposit funds and optionally enable yield earning on idle balances.
-  </Step>
-  
-  <Step title="Subscribe to Services">
-    Browse available subscription plans and subscribe with one click. The protocol automatically reserves a buffer (typically 3 months) while the rest keeps earning yield.
-  </Step>
-  
-  <Step title="Automatic Payments">
-    Smart contracts execute payments on schedule—no manual intervention needed. Users maintain full visibility and control through their dashboard.
-  </Step>
-  
-  <Step title="Merchants Receive Payments">
-    Funds flow directly to merchant wallets on-chain. No intermediaries, no custody risk, no payment processor fees.
-  </Step>
-</Steps>
-
-## Key Features
+```jsx
+<EventopTarget id="export" name="Export Design" description="Download as PNG or SVG">
+  <Button onClick={handleExport}>Export</Button>
+</EventopTarget>
+```
 
 <CardGroup cols={2}>
-  <Card title="User Dashboard" icon="chart-mixed" href="/users/dashboard">
-    Manage all your subscriptions, track yield earnings, and control your funds from one interface
+  <Card title="Quickstart" icon="bolt" href="/getting-started/quickstart">
+    Up and running in 3 steps
   </Card>
-  
-  <Card title="Merchant API" icon="code" href="/merchants/api-reference">
-    RESTful API and JavaScript SDK for seamless integration with your existing systems
+  <Card title="React Setup" icon="react" href="/getting-started/react">
+    Full setup guide for React Router apps
   </Card>
-  
-  <Card title="Yield Strategies" icon="money-bill-trend-up" href="/users/yield">
-    Choose from multiple DeFi protocols to maximize returns on idle subscription funds
+  <Card title="Next.js Setup" icon="n" href="/getting-started/nextjs">
+    Full setup guide for App Router and Pages Router
   </Card>
-  
-  <Card title="Smart Contracts" icon="file-contract" href="/developers/contracts">
-    Open-source Solana programs built with Anchor for transparency and security
-  </Card>
-</CardGroup>
-
-## Ready to Get Started?
-
-<CardGroup cols={2}>
-  <Card title="I'm a User" icon="user" href="/users/quickstart">
-    Create your subscription wallet and start earning yield
-  </Card>
-  
-  <Card title="I'm a Merchant" icon="building" href="/merchants/quickstart">
-    Accept recurring crypto payments in minutes
-  </Card>
-  
-  <Card title="I'm a Developer" icon="code" href="/developers/quickstart">
-    Build on top of our protocol or integrate directly with smart contracts
-  </Card>
-  
-  <Card title="View Examples" icon="book-open" href="/examples">
-    See real-world implementations and use cases
+  <Card title="API Reference" icon="code" href="/api-reference/provider">
+    Props, hooks, and methods
   </Card>
 </CardGroup>
 
 ---
 
-## Built for Web3, Accessible to Web2
+## How it works
 
-No custody risk. No off-chain complexity. Just simple, reliable recurring payments on Solana.
+<Steps>
+  <Step title="Create a server endpoint">
+    Proxy the AI call from your backend so API keys never reach the browser.
+  </Step>
+  <Step title="Add the provider">
+    Wrap your app with `<EventopAIProvider>` and pass your server route and router function.
+  </Step>
+  <Step title="Wrap your features">
+    Add `<EventopTarget>` around any UI element you want the AI to be able to guide users to.
+  </Step>
+</Steps>
 
-**Welcome to subscriptions, the way crypto intended.**
+The chat bubble appears automatically. Users type what they want, and the tour runs — including navigating between pages when needed.
+
+---
+
+## Key features
+
+<AccordionGroup>
+  <Accordion title="Cross-page navigation" icon="map">
+    Tours navigate between pages automatically. Before starting, the chat panel tells users which pages will be visited. No manual navigation code needed.
+  </Accordion>
+  <Accordion title="Multi-step flows" icon="list-ol">
+    Use `<EventopStep>` to break complex interactions into sequential steps. Steps can live in completely different components — they self-assemble by index.
+  </Accordion>
+  <Accordion title="Async validation" icon="circle-check">
+    Block a tour from advancing until the user correctly completes a form action. Use `stepComplete()` and `stepFail()` from the `useEventopAI` hook.
+  </Accordion>
+  <Accordion title="Themeable" icon="palette">
+    Customize colors, radius, and fonts with theme tokens. Supports light, dark, and auto modes.
+  </Accordion>
+  <Accordion title="Framework agnostic wrapping" icon="puzzle-piece">
+    `<EventopTarget>` wraps anything — `<div>`, shadcn, MUI, Radix, or your own components. You never modify the component itself.
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,57 @@
+---
+title: "Async Validation"
+description: "Block a tour from advancing until the user completes an action correctly."
+---
+
+Use `useEventopAI` when a tour step depends on user input before moving forward — for example, validating a form field before the tour continues.
+
+---
+
+## Example
+
+```jsx
+'use client';
+import { useState } from 'react';
+import { useEventopAI } from '@eventop/sdk/react';
+import { EventopTarget } from '@eventop/sdk/react';
+
+export function CheckoutForm() {
+  const { stepComplete, stepFail } = useEventopAI();
+  const [email, setEmail] = useState('');
+
+  async function handleContinue() {
+    const ok = await validateEmail(email);
+    if (ok) {
+      stepComplete();
+    } else {
+      stepFail('Please enter a valid email address.');
+    }
+  }
+
+  return (
+    <EventopTarget
+      id="email-field"
+      name="Email Address"
+      description="Enter your email to continue"
+    >
+      <div>
+        <input
+          type="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+        />
+        <button onClick={handleContinue}>Continue</button>
+      </div>
+    </EventopTarget>
+  );
+}
+```
+
+- `stepComplete()` — advances the tour to the next step
+- `stepFail(message)` — blocks advancement and displays the message in the tooltip
+
+---
+
+## When to use it
+
+Use async validation any time a step should only advance after a user action has been verified — form submissions, API calls, toggling a required setting, and so on. For simple click-to-advance cases, use `advanceOn` on `<EventopTarget>` or `<EventopStep>` instead.

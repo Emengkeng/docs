@@ -1,0 +1,72 @@
+---
+title: "EventopAIProvider"
+description: "Props reference for the root provider component."
+---
+
+```jsx
+import { EventopAIProvider } from '@eventop/sdk/react';
+```
+
+Wrap your entire app (or router root) with `<EventopAIProvider>`. Pass it a `provider` function that calls your server route, and a `router` function for cross-page navigation.
+
+---
+
+## Props
+
+<ParamField path="provider" type="function" required>
+  An async function that calls your server route. Receives `{ systemPrompt, messages }` and must return the parsed JSON response.
+
+  ```jsx
+  const provider = async ({ systemPrompt, messages }) => {
+    const res = await fetch('/api/guide', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ systemPrompt, messages }),
+    });
+    return res.json();
+  };
+  ```
+</ParamField>
+
+<ParamField path="appName" type="string" required>
+  The name of your app. Shown in the chat panel header.
+</ParamField>
+
+<ParamField path="assistantName" type="string" default="AI Guide">
+  The name of the AI assistant. Shown in the chat panel header.
+</ParamField>
+
+<ParamField path="router" type="function">
+  `(path: string) => void` — your framework's navigate function. Required for cross-page tours.
+
+  - React Router: pass `useNavigate()` directly
+  - Next.js: pass `(path) => router.push(path)`
+
+  Falls back to `history.pushState` if omitted, which does not trigger a React or Next.js re-render.
+</ParamField>
+
+<ParamField path="suggestions" type="string[]" default="[]">
+  Clickable suggestion chips shown when the chat panel opens for the first time.
+
+  ```jsx
+  suggestions={['How do I export?', 'Invite a teammate']}
+  ```
+</ParamField>
+
+<ParamField path="theme" type="object">
+  Theme configuration. See [Theming](/features/theming) for the full token reference.
+
+  ```jsx
+  theme={{ mode: 'auto', tokens: { accent: '#6366f1' } }}
+  ```
+</ParamField>
+
+<ParamField path="position" type="object" default='{ corner: "bottom-right" }'>
+  Position of the chat bubble.
+
+  ```jsx
+  position={{ corner: 'bottom-right', offsetX: 24, offsetY: 24 }}
+  ```
+
+  `corner` accepts: `bottom-right`, `bottom-left`, `top-right`, `top-left`.
+</ParamField>

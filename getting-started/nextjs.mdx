@@ -1,0 +1,215 @@
+---
+title: "Next.js Setup"
+description: "Full setup guide for Next.js App Router and Pages Router."
+---
+
+## Prerequisites
+
+- Next.js 13+
+- App Router or Pages Router
+
+---
+
+## 1. Install
+
+```bash
+npm install @eventop/sdk
+```
+
+---
+
+## 2. Create the API route
+
+<CodeGroup>
+
+```js App Router
+// app/api/guide/route.js
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+export async function POST(request) {
+  const { systemPrompt, messages } = await request.json();
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    system: systemPrompt,
+    messages,
+  });
+  return Response.json(JSON.parse(response.content[0].text));
+}
+```
+
+```js Pages Router
+// pages/api/guide.js
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+export default async function handler(req, res) {
+  const { systemPrompt, messages } = req.body;
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    system: systemPrompt,
+    messages,
+  });
+  res.json(JSON.parse(response.content[0].text));
+}
+```
+
+</CodeGroup>
+
+---
+
+## 3. Create the provider component
+
+The SDK touches the DOM, so the provider must be a client component. Create a wrapper that you'll add to your layout.
+
+<CodeGroup>
+
+```jsx App Router
+// components/EventopProvider.jsx
+'use client';
+import { useRouter } from 'next/navigation';
+import { EventopAIProvider } from '@eventop/sdk/react';
+
+const provider = async ({ systemPrompt, messages }) => {
+  const res = await fetch('/api/guide', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ systemPrompt, messages }),
+  });
+  return res.json();
+};
+
+export function EventopProvider({ children }) {
+  const router = useRouter();
+
+  return (
+    <EventopAIProvider
+      provider={provider}
+      router={(path) => router.push(path)}
+      appName="My App"
+      assistantName="AI Guide"
+      suggestions={['How do I export?', 'Invite a teammate']}
+      theme={{ mode: 'auto', tokens: { accent: '#6366f1' } }}
+      position={{ corner: 'bottom-right' }}
+    >
+      {children}
+    </EventopAIProvider>
+  );
+}
+```
+
+```jsx Pages Router
+// components/EventopProvider.jsx
+'use client';
+import { useRouter } from 'next/router';
+import { EventopAIProvider } from '@eventop/sdk/react';
+
+const provider = async ({ systemPrompt, messages }) => {
+  const res = await fetch('/api/guide', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ systemPrompt, messages }),
+  });
+  return res.json();
+};
+
+export function EventopProvider({ children }) {
+  const router = useRouter();
+
+  return (
+    <EventopAIProvider
+      provider={provider}
+      router={(path) => router.push(path)}
+      appName="My App"
+      assistantName="AI Guide"
+      suggestions={['How do I export?', 'Invite a teammate']}
+    >
+      {children}
+    </EventopAIProvider>
+  );
+}
+```
+
+</CodeGroup>
+
+---
+
+## 4. Add the provider to your layout
+
+<CodeGroup>
+
+```jsx App Router
+// app/layout.jsx
+import { EventopProvider } from '@/components/EventopProvider';
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <EventopProvider>
+          {children}
+        </EventopProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+```jsx Pages Router
+// pages/_app.jsx
+import { EventopProvider } from '@/components/EventopProvider';
+
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <EventopProvider>
+      <Component {...pageProps} />
+    </EventopProvider>
+  );
+}
+```
+
+</CodeGroup>
+
+---
+
+## 5. Wrap your features
+
+Any component that uses `EventopTarget`, `EventopStep`, or the hooks needs `'use client'`.
+
+```jsx
+// components/Toolbar.jsx
+'use client';
+import { EventopTarget } from '@eventop/sdk/react';
+
+export function Toolbar() {
+  return (
+    <div className="toolbar">
+      <EventopTarget
+        id="export"
+        name="Export Design"
+        description="Download as PNG, SVG or PDF"
+        route="/canvas"
+      >
+        <button>Export</button>
+      </EventopTarget>
+
+      <EventopTarget
+        id="share"
+        name="Share Design"
+        description="Share a link to this design"
+        route="/canvas"
+      >
+        <button>Share</button>
+      </EventopTarget>
+    </div>
+  );
+}
+```
+
+<Warning>
+  Forgetting `'use client'` on components that use `EventopTarget` or any Eventop hook will throw a server component error in Next.js.
+</Warning>

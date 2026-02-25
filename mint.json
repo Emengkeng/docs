@@ -23,67 +23,46 @@
     {
       "name": "Dashboard",
       "url": "https://dashboard.eventop.xyz"
+    },
+    {
+      "name": "npm",
+      "url": "https://www.npmjs.com/package/@eventop/sdk"
     }
   ],
   "topbarCtaButton": {
     "name": "Get Started",
-    "url": "https://eventop.xyz"
+    "url": "/getting-started/quickstart"
   },
-  "tabs": [
-    {
-      "name": "API Reference",
-      "url": "api-reference"
-    },
-    {
-      "name": "Merchants",
-      "url": "merchants"
-    },
-    {
-      "name": "Users",
-      "url": "users"
-    }
-  ],
   "navigation": [
+    {
+      "group": "Overview",
+      "pages": ["introduction"]
+    },
     {
       "group": "Getting Started",
       "pages": [
-        "introduction",
-        "quickstart"
+        "getting-started/quickstart",
+        "getting-started/react",
+        "getting-started/nextjs"
       ]
     },
     {
-      "group": "Merchants",
+      "group": "Features",
       "pages": [
-        "merchants/overview",
-        "merchants/quickstart",
-        "merchants/how-it-works",
-        "merchants/integration-guide",
-        "merchants/testing",
-        "merchants/go-live"
-      ]
-    },
-    {
-      "group": "Integration",
-      "pages": [
-        "integration/webhooks",
-        "integration/sdks"
+        "features/smart-navigation",
+        "features/multi-step-flows",
+        "features/async-validation",
+        "features/tour-status",
+        "features/theming"
       ]
     },
     {
       "group": "API Reference",
       "pages": [
-        "api-reference/introduction",
-        "api-reference/authentication",
-        "api-reference/checkout",
-        "api-reference/subscriptions",
-        "api-reference/customers"
-      ]
-    },
-    {
-      "group": "Users",
-      "pages": [
-        "users/getting-started",
-        "users/mobile-app"
+        "api-reference/provider",
+        "api-reference/target",
+        "api-reference/step",
+        "api-reference/hooks"
       ]
     }
   ],

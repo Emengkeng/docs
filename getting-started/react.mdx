@@ -1,0 +1,126 @@
+---
+title: "React Setup"
+description: "Full setup guide for React Router v6 apps."
+---
+
+## Prerequisites
+
+- React 17+
+- React Router v6
+- An Express (or equivalent) server to proxy AI calls
+
+---
+
+## 1. Install
+
+```bash
+npm install @eventop/sdk
+```
+
+---
+
+## 2. Create the server endpoint
+
+```js
+// server.js
+import Anthropic from '@anthropic-ai/sdk';
+
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+app.post('/api/guide', async (req, res) => {
+  const { systemPrompt, messages } = req.body;
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    system: systemPrompt,
+    messages,
+  });
+  res.json(JSON.parse(response.content[0].text));
+});
+```
+
+---
+
+## 3. Add the provider
+
+`useNavigate` must be called inside a component that's already inside a `<Router>`. Place `<EventopAIProvider>` at or just below your router root.
+
+```jsx
+// main.jsx
+import { BrowserRouter, useNavigate } from 'react-router-dom';
+import { EventopAIProvider } from '@eventop/sdk/react';
+
+const provider = async ({ systemPrompt, messages }) => {
+  const res = await fetch('/api/guide', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ systemPrompt, messages }),
+  });
+  return res.json();
+};
+
+function Root() {
+  const navigate = useNavigate(); // must be inside <BrowserRouter>
+
+  return (
+    <EventopAIProvider
+      provider={provider}
+      router={navigate}
+      appName="My App"
+      assistantName="AI Guide"
+      suggestions={['How do I export?', 'Invite a teammate']}
+      theme={{ mode: 'auto', tokens: { accent: '#6366f1' } }}
+      position={{ corner: 'bottom-right' }}
+    >
+      <App />
+    </EventopAIProvider>
+  );
+}
+
+export default function Main() {
+  return (
+    <BrowserRouter>
+      <Root />
+    </BrowserRouter>
+  );
+}
+```
+
+---
+
+## 4. Wrap your features
+
+Add `<EventopTarget>` anywhere in the tree. Any component that uses `EventopTarget`, `EventopStep`, or the hooks is a regular React component — no special setup needed.
+
+```jsx
+// components/Toolbar.jsx
+import { EventopTarget } from '@eventop/sdk/react';
+
+export function Toolbar() {
+  return (
+    <div className="toolbar">
+      <EventopTarget
+        id="export"
+        name="Export Design"
+        description="Download as PNG, SVG or PDF"
+        route="/canvas"
+      >
+        <button>Export</button>
+      </EventopTarget>
+
+      <EventopTarget
+        id="share"
+        name="Share Design"
+        description="Share a link to this design"
+        route="/canvas"
+      >
+        <button>Share</button>
+      </EventopTarget>
+    </div>
+  );
+}
+```
+
+<Tip>
+  Features on the same page where tours typically start don't need `route`. Only add it to features that live on a different page.
+</Tip>

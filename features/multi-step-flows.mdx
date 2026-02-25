@@ -1,0 +1,109 @@
+---
+title: "Multi-step Flows"
+description: "Guide users through complex multi-action sequences with EventopStep."
+---
+
+Use `<EventopStep>` when a feature requires multiple actions in sequence — opening a panel, toggling a switch, adjusting sliders. Steps can live in completely different components and self-assemble by index.
+
+---
+
+## Basic example
+
+```jsx
+// Step 0 — CanvasStage.jsx: click a canvas element
+'use client';
+import { EventopStep } from '@eventop/sdk/react';
+
+export function CanvasStage() {
+  return (
+    <EventopStep
+      feature="drop-shadow"
+      index={0}
+      advanceOn={{ selector: '.canvas-el', event: 'click', delay: 300 }}
+    >
+      <div className="canvas-stage">...</div>
+    </EventopStep>
+  );
+}
+
+// Step 1 — Toolbar.jsx: open the Effects panel
+export function EffectsButton() {
+  return (
+    <EventopStep
+      feature="drop-shadow"
+      index={1}
+      waitFor=".canvas-el.selected"
+      advanceOn={{ event: 'click', delay: 200 }}
+    >
+      <button id="btn-effects">✨ Effects</button>
+    </EventopStep>
+  );
+}
+
+// Step 2 — EffectsPanel.jsx: toggle shadow on
+export function ShadowToggle({ onToggle }) {
+  return (
+    <EventopStep
+      feature="drop-shadow"
+      index={2}
+      waitFor="#effects-panel.open"
+      advanceOn={{ event: 'click', delay: 300 }}
+    >
+      <button id="shadow-toggle" onClick={onToggle}>Shadow</button>
+    </EventopStep>
+  );
+}
+
+// Step 3 — rendered only when shadow is on
+// SDK waits via waitFor before showing this step
+export function ShadowSliders() {
+  return (
+    <EventopStep
+      feature="drop-shadow"
+      index={3}
+      waitFor="#shadow-controls.visible"
+    >
+      <div id="shadow-controls" className="visible">...</div>
+    </EventopStep>
+  );
+}
+```
+
+The parent feature still needs a top-level `<EventopTarget>` somewhere:
+
+```jsx
+<EventopTarget
+  id="drop-shadow"
+  name="Drop Shadow Effect"
+  description="Apply a customisable drop shadow to a selected element"
+  route="/canvas"
+>
+  <div className="canvas-screen">
+    <CanvasStage />
+    <EffectsButton />
+    <ShadowToggle />
+    {shadowOn && <ShadowSliders />}
+  </div>
+</EventopTarget>
+```
+
+---
+
+## `waitFor` and `advanceOn`
+
+| Prop        | Description |
+|-------------|-------------|
+| `waitFor`   | A CSS selector the SDK waits to appear in the DOM before showing this step. Useful when elements are conditionally rendered. |
+| `advanceOn` | An object `{ event, delay?, selector? }` — the SDK auto-advances when this event fires. If `selector` is omitted, the event is listened for on the wrapped element. |
+
+---
+
+## Sub-steps
+
+Use `parentStep` to nest a step inside another step:
+
+```jsx
+<EventopStep feature="settings" index={1} parentStep={0}>
+  <div>...</div>
+</EventopStep>
+```

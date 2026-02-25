@@ -1,0 +1,48 @@
+---
+title: "Tour Status"
+description: "Show tour state in your own UI with the useEventopTour hook."
+---
+
+Use `useEventopTour` to read tour state and expose controls — pause, resume, cancel — in your own UI instead of (or in addition to) the built-in chat panel.
+
+---
+
+## Example
+
+```jsx
+'use client';
+import { useEventopTour } from '@eventop/sdk/react';
+
+export function TourStatusBar() {
+  const { isActive, isPaused, resume, cancel } = useEventopTour();
+
+  if (!isActive && !isPaused) return null;
+
+  return (
+    <div className="tour-bar">
+      {isPaused ? (
+        <>
+          <span>⏸ Tour paused</span>
+          <button onClick={resume}>Resume</button>
+        </>
+      ) : (
+        <span>▶ Guided tour running</span>
+      )}
+      <button onClick={cancel}>End tour</button>
+    </div>
+  );
+}
+```
+
+---
+
+## Available properties and methods
+
+| Name        | Type     | Description                        |
+|-------------|----------|------------------------------------|
+| `isActive`  | boolean  | `true` if a tour is running        |
+| `isPaused`  | boolean  | `true` if a tour is paused         |
+| `resume()`  | function | Resume a paused tour               |
+| `cancel()`  | function | Hard cancel — no resume state saved|
+| `open()`    | function | Open the chat panel                |
+| `close()`   | function | Close the chat panel               |

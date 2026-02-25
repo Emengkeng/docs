@@ -1,0 +1,83 @@
+---
+title: "Hooks"
+description: "useEventopAI and useEventopTour reference."
+---
+
+## useEventopAI
+
+```jsx
+import { useEventopAI } from '@eventop/sdk/react';
+```
+
+General-purpose hook for controlling tours and the chat panel. Use `stepComplete` and `stepFail` to validate tour steps before advancing.
+
+```jsx
+const { stepComplete, stepFail, open, close, cancelTour, resumeTour, isActive, isPaused, runTour } = useEventopAI();
+```
+
+### Methods
+
+<ParamField path="stepComplete()">
+  Advance the currently active tour step.
+</ParamField>
+
+<ParamField path="stepFail(message)">
+  Block the tour from advancing and display `message` in the tooltip.
+
+  ```jsx
+  stepFail('Please enter a valid email address.');
+  ```
+</ParamField>
+
+<ParamField path="open()">
+  Open the chat panel.
+</ParamField>
+
+<ParamField path="close()">
+  Close the chat panel.
+</ParamField>
+
+<ParamField path="cancelTour()">
+  Hard cancel the active tour. No resume state is saved.
+</ParamField>
+
+<ParamField path="resumeTour()">
+  Resume a paused tour from where it left off.
+</ParamField>
+
+<ParamField path="isActive()">
+  Returns `true` if a tour is currently running.
+</ParamField>
+
+<ParamField path="isPaused()">
+  Returns `true` if a tour is paused.
+</ParamField>
+
+<ParamField path="runTour(steps)">
+  Run a tour manually, bypassing the AI. Useful for hardcoded onboarding flows.
+</ParamField>
+
+---
+
+## useEventopTour
+
+```jsx
+import { useEventopTour } from '@eventop/sdk/react';
+```
+
+Lightweight hook for reading tour state and showing controls in your own UI. See [Tour Status](/features/tour-status) for a full example.
+
+```jsx
+const { isActive, isPaused, resume, cancel, open, close } = useEventopTour();
+```
+
+### Properties and methods
+
+| Name        | Type     | Description                         |
+|-------------|----------|-------------------------------------|
+| `isActive`  | boolean  | `true` if a tour is running         |
+| `isPaused`  | boolean  | `true` if a tour is paused          |
+| `resume()`  | function | Resume a paused tour                |
+| `cancel()`  | function | Hard cancel — no resume state saved |
+| `open()`    | function | Open the chat panel                 |
+| `close()`   | function | Close the chat panel                |

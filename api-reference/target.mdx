@@ -1,0 +1,64 @@
+---
+title: "EventopTarget"
+description: "Props reference for the feature wrapper component."
+---
+
+```jsx
+import { EventopTarget } from '@eventop/sdk/react';
+```
+
+Wrap any element with `<EventopTarget>` to register it as a feature the AI can guide users to. The wrapped component is unchanged — you never modify the component itself.
+
+---
+
+## Props
+
+<ParamField path="id" type="string" required>
+  A stable, unique identifier for this feature. Used internally to track the feature across page navigations.
+
+  <Warning>
+    Use an ID that identifies a **UI capability**, not a data record. Avoid dynamic IDs like `` `project-${p.id}` `` — each unique ID creates a ghost entry that persists for the session. Use a single `EventopTarget` for repeating patterns instead.
+  </Warning>
+</ParamField>
+
+<ParamField path="name" type="string" required>
+  A human-readable name for this feature. The AI reads this to understand what the feature does and match it to user intent.
+</ParamField>
+
+<ParamField path="description" type="string">
+  A short description of what this feature does. The more descriptive, the better the AI can match user queries to the right feature.
+</ParamField>
+
+<ParamField path="route" type="string">
+  The pathname where this feature lives (e.g. `"/settings/billing"`). When set, the SDK automatically navigates here before showing this step during a tour.
+
+  Only required for features that live on a different page than where tours are typically started.
+</ParamField>
+
+<ParamField path="advanceOn" type="object">
+  Auto-advance the tour when an event fires.
+
+  ```jsx
+  advanceOn={{ event: 'click', delay: 300 }}
+  // or target a specific child
+  advanceOn={{ selector: '.submit-btn', event: 'click', delay: 200 }}
+  ```
+
+  | Field      | Type   | Description |
+  |------------|--------|-------------|
+  | `event`    | string | DOM event name (e.g. `'click'`, `'change'`) |
+  | `delay`    | number | Milliseconds to wait after the event before advancing |
+  | `selector` | string | CSS selector for the element to listen on. Defaults to the wrapped element. |
+</ParamField>
+
+<ParamField path="waitFor" type="string">
+  A CSS selector the SDK waits to appear in the DOM before showing this step. Useful when the feature is conditionally rendered.
+</ParamField>
+
+<ParamField path="navigate" type="function">
+  **Legacy.** A function to call for navigation if the component is not mounted. Prefer `route` + `router` for React/Next.js apps.
+</ParamField>
+
+<ParamField path="navigateWaitFor" type="string">
+  **Legacy.** A CSS selector to wait for after calling `navigate`. Used alongside the legacy `navigate` prop.
+</ParamField>

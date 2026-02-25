@@ -1,0 +1,147 @@
+---
+title: "Smart Navigation"
+description: "Tours navigate between pages automatically — no manual navigation code needed."
+---
+
+When a user asks about a feature that lives on a different page, the SDK navigates there automatically before showing the step.
+
+## What the user sees
+
+**Before the tour starts**, the chat panel previews which pages will be visited:
+
+> 🗺 This tour visits 2 areas: Export Design and Billing Settings. I'll navigate between them automatically.
+
+**Mid-tour**, just before each page change:
+
+> ↗ Taking you to the Billing Settings area…
+
+The page changes, the target element appears, and the tooltip shows — all without the user doing anything.
+
+---
+
+## Setup
+
+Two things are required: `router` on the provider, and `route` on any `<EventopTarget>` that lives on a different page.
+
+### 1. Pass `router` to the provider
+
+<CodeGroup>
+
+```jsx React Router
+import { useNavigate } from 'react-router-dom';
+
+function Root() {
+  const navigate = useNavigate();
+
+  return (
+    <EventopAIProvider router={navigate} ...>
+      <App />
+    </EventopAIProvider>
+  );
+}
+```
+
+```jsx Next.js App Router
+'use client';
+import { useRouter } from 'next/navigation';
+
+export function EventopProvider({ children }) {
+  const router = useRouter();
+
+  return (
+    <EventopAIProvider router={(path) => router.push(path)} ...>
+      {children}
+    </EventopAIProvider>
+  );
+}
+```
+
+```jsx Next.js Pages Router
+'use client';
+import { useRouter } from 'next/router';
+
+export function EventopProvider({ children }) {
+  const router = useRouter();
+
+  return (
+    <EventopAIProvider router={(path) => router.push(path)} ...>
+      {children}
+    </EventopAIProvider>
+  );
+}
+```
+
+</CodeGroup>
+
+### 2. Add `route` to each feature
+
+```jsx
+// Feature on /settings/billing
+<EventopTarget
+  id="billing"
+  name="Billing Settings"
+  description="Manage your subscription and payment method"
+  route="/settings/billing"
+>
+  <BillingSection />
+</EventopTarget>
+
+// Feature on /canvas — only needs route if different from where tours start
+<EventopTarget
+  id="export"
+  name="Export Design"
+  description="Download as PNG, SVG or PDF"
+  route="/canvas"
+>
+  <ExportButton />
+</EventopTarget>
+```
+
+<Tip>
+  Features on the same page where tours are typically started don't need `route`. Only add it to features that live on other pages.
+</Tip>
+
+---
+
+## How the registry works
+
+When you navigate away from a page, its `EventopTarget` components unmount. Rather than losing that data, the SDK downgrades them to **ghost entries** — metadata is kept, only the live DOM selector is cleared.
+
+```
+EventopTarget mounts   → full entry  { id, name, description, route, selector }
+EventopTarget unmounts → ghost entry { id, name, description, route, selector: null }
+EventopTarget remounts → full entry  (selector restored)
+```
+
+This means the AI always knows about every feature the app has ever rendered, regardless of the current page. Tours can be planned from any starting point.
+
+The selector is resolved lazily — after navigation, the target page's components remount and the ghost upgrades back to a full entry just before the tooltip shows.
+
+<Warning>
+  **Keep `id` values stable.** Ghost entries accumulate for the session lifetime, so `id` should identify a UI capability, not a data record. Avoid dynamic IDs like `` `project-${p.id}` `` on list items — use a single `EventopTarget` for the repeating pattern instead.
+</Warning>
+
+---
+
+## Fallback (no `router` prop)
+
+If you don't pass `router`, the SDK falls back to:
+
+```js
+window.history.pushState({}, '', route);
+window.dispatchEvent(new PopStateEvent('popstate', { state: {} }));
+```
+
+This works for vanilla JS SPAs that listen to `popstate`, but **does not** trigger a React Router or Next.js re-render. Always pass `router` for React/Next.js apps.
+
+---
+
+## Backward compatibility
+
+The legacy `screen` / `navigate` props still work. `route` + `router` is the recommended approach going forward. Both can coexist in the same app.
+
+| Prop       | When to use                                           |
+|------------|-------------------------------------------------------|
+| `route`    | React Router, Next.js — simple pathname-based routing |
+| `screen`   | Complex check logic or non-URL-based navigation       |
+| Both       | Fine — `route` is checked first                       |
