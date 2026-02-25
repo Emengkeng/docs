@@ -33,6 +33,11 @@
     "name": "Get Started",
     "url": "/getting-started/quickstart"
   },
+  "anchors": [
+    { "name": "Getting Started", "icon": "bolt",  "url": "getting-started" },
+    { "name": "Features",        "icon": "stars", "url": "features"        },
+    { "name": "API Reference",   "icon": "code",  "url": "api-reference"   }
+  ],
   "navigation": [
     {
       "group": "Overview",
